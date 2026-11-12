@@ -16,11 +16,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Java 17
+      - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -28,12 +28,25 @@ jobs:
       - name: Build Capacitor Android Project
         run: |
           npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
           npx cap init "Calculator Pro" "com.rameshwar.calculatorpro" --web-dir www
           mkdir -p www
           cp index.html www/index.html
+          cat << 'EOF' > capacitor.config.json
+          {
+            "appId": "com.rameshwar.calculatorpro",
+            "appName": "Calculator Pro",
+            "webDir": "www",
+            "server": {
+              "url": "https://rameshwarkharade001-byte.github.io/Calculator-pro/",
+              "cleartext": true
+            },
+            "android": {
+              "allowMixedContent": true
+            }
+          }
+          EOF
           npx cap add android
-          sed -i 's/allowMixedContent: false/allowMixedContent: true/g' capacitor.config.json || true
           cd android
           chmod +x gradlew
           ./gradlew assembleRelease
