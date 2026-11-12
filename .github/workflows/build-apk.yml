@@ -1,0 +1,53 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build Capacitor Android Project
+        run: |
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init "Calculator Pro" "com.rameshwar.calculatorpro" --web-dir www
+          mkdir -p www
+          cp index.html www/index.html
+          npx cap add android
+          sed -i 's/allowMixedContent: false/allowMixedContent: true/g' capacitor.config.json || true
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: Sign Release APK
+        run: |
+          keytool -genkey -v -keystore release.keystore -alias calcpro -keyalg RSA -keysize 2048 -validity 10000 -storepass calc1234 -keypass calc1234 -dname "CN=Rameshwar, OU=Dev, O=CalculatorPro, L=Partur, ST=Maharashtra, C=IN"
+          BUILD_TOOLS=$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)
+          $BUILD_TOOLS/zipalign -v -p 4 android/app/build/outputs/apk/release/app-release-unsigned.apk app-aligned.apk
+          $BUILD_TOOLS/apksigner sign --ks release.keystore --ks-pass pass:calc1234 --key-pass pass:calc1234 --out Calculator-Pro-Release.apk app-aligned.apk
+
+      - name: Upload Signed APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Calculator-Pro-Signed-APK
+          path: Calculator-Pro-Release.apk
+          
