@@ -1,0 +1,2840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Calculator Pro — Glass Ultra 55+ Tools</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #050609;
+      --glass-surface: rgba(255, 255, 255, 0.06);
+      --glass-surface-strong: rgba(255, 255, 255, 0.11);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-top-edge: rgba(255, 255, 255, 0.25);
+      --accent: #ff9500;
+      --accent-soft: rgba(255, 149, 0, 0.22);
+      --accent-glow: rgba(255, 149, 0, 0.5);
+      --cyan: #38bdf8;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-void);
+      color: var(--text-main);
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* Ambient Glassmorphism Glow Orbs */
+    .ambient-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .glow-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(85px);
+      opacity: 0.42;
+      animation: floatOrb 14s ease-in-out infinite alternate;
+    }
+    .orb-orange {
+      width: 270px; height: 270px;
+      background: radial-gradient(circle, #ff9500, transparent 70%);
+      top: -50px; right: -40px;
+    }
+    .orb-blue {
+      width: 310px; height: 310px;
+      background: radial-gradient(circle, #2563eb, transparent 70%);
+      bottom: 70px; left: -80px;
+      animation-delay: -5s;
+    }
+    .orb-violet {
+      width: 230px; height: 230px;
+      background: radial-gradient(circle, #8b5cf6, transparent 70%);
+      top: 40%; left: 32%;
+      opacity: 0.24;
+    }
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-18px, 22px) scale(1.08); }
+    }
+
+    /* Main Glass App Frame */
+    .app-frame {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 480px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: rgba(11, 13, 20, 0.56);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-left: 1px solid var(--glass-border);
+      border-right: 1px solid var(--glass-border);
+    }
+
+    /* Top Glass Header */
+    .glass-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(255, 255, 255, 0.035);
+      border-bottom: 1px solid var(--glass-border);
+      flex-shrink: 0;
+      z-index: 20;
+    }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .app-name {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .pro-pill {
+      font-size: 9.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: linear-gradient(135deg, #ff9500, #ea580c);
+      color: #000;
+      letter-spacing: 0.4px;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .glass-nav-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--glass-surface);
+      border: 1px solid var(--glass-border);
+      border-top-color: var(--glass-top-edge);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      transition: transform 0.14s ease, background 0.14s ease, border-color 0.14s ease;
+    }
+    .glass-nav-btn:active {
+      transform: scale(0.91);
+      background: var(--glass-surface-strong);
+    }
+    .glass-nav-btn.is-active {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 14px rgba(255, 149, 0, 0.28);
+    }
+
+    /* Main Viewport */
+    .main-viewport {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .main-viewport::-webkit-scrollbar { width: 4px; }
+    .main-viewport::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 4px;
+    }
+
+    /* Reusable Glass Components for All 55+ Sessions */
+    .g-card {
+      background: var(--glass-surface);
+      border: 1px solid var(--glass-border);
+      border-top-color: var(--glass-top-edge);
+      border-radius: 18px;
+      padding: 14px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .g-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .g-input, .g-select {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.38);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      user-select: text;
+      transition: border-color 0.2s;
+    }
+    .g-input:focus, .g-select:focus {
+      border-color: var(--accent);
+    }
+    .g-btn-orange {
+      background: linear-gradient(135deg, #ff9500, #ea580c);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-size: 13.5px;
+      cursor: pointer;
+      box-shadow: 0 4px 18px var(--accent-glow);
+      transition: transform 0.14s ease;
+    }
+    .g-btn-orange:active { transform: scale(0.96); }
+    .g-btn-glass {
+      background: var(--glass-surface-strong);
+      color: var(--text-main);
+      font-weight: 600;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .g-btn-glass:active { transform: scale(0.96); }
+
+    /* Bottom Docked Adsterra 320x50 Banner (Non-Blocking & Crash-Free) */
+    .bottom-ad-dock {
+      width: 100%;
+      height: 56px;
+      background: rgba(4, 5, 8, 0.9);
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      z-index: 25;
+    }
+    .adsterra-320x50-iframe {
+      width: 320px;
+      height: 50px;
+      border: none;
+      overflow: hidden;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+  </style>
+</head>
+<body>
+  <div class="ambient-canvas">
+    <div class="glow-orb orb-orange"></div>
+    <div class="glow-orb orb-blue"></div>
+    <div class="glow-orb orb-violet"></div>
+  </div>
+
+  <div class="app-frame">
+    <!-- Top Glass Navigation Bar -->
+    <header class="glass-header">
+      <div class="header-left">
+        <button id="nav-back-btn" class="glass-nav-btn" style="display:none;" title="Back" onclick="handleBackNav()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <span id="nav-title" class="app-name">Calculator Pro</span>
+        <span class="pro-pill">ULTRA 55+</span>
+      </div>
+
+      <div class="header-actions">
+        <!-- Scientific Drawer Toggle -->
+        <button id="nav-sci-btn" class="glass-nav-btn" title="Scientific Mode" onclick="toggleSciDrawer()">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;">√π</span>
+        </button>
+        <!-- 55+ All-Tools Hub -->
+        <button id="nav-hub-btn" class="glass-nav-btn" title="All 55+ Tools" onclick="openToolsHub()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        </button>
+        <!-- History Tape -->
+        <button id="nav-hist-btn" class="glass-nav-btn" title="History" onclick="toggleHistoryPanel()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 15"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Dynamic App Viewport (Main Calculator / 55+ Hub / Dedicated Tool Sessions) -->
+    <main id="app-viewport" class="main-viewport">
+      <!-- PART 2 WILL RENDER MAIN GLASS CALCULATOR HERE -->
+    </main>
+
+    <!-- Bottom Sticky Adsterra 320x50 Banner -->
+    <footer class="bottom-ad-dock">
+      <iframe id="adsterra-banner-slot" class="adsterra-320x50-iframe" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
+    </footer>
+  </div>
+
+  <!-- Safe Isolated Adsterra Loader (320x50 Banner + Delayed Non-Intrusive Social Bar) -->
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      // 1. Load 320x50 Banner inside isolated iframe so main calculator never crashes
+      const bFrame = document.getElementById('adsterra-banner-slot');
+      if (bFrame) {
+        const d = bFrame.contentWindow.document;
+        d.open();
+        d.write(`
+          <!DOCTYPE html><html><body style="margin:0;padding:0;background:transparent;display:flex;justify-content:center;align-items:center;overflow:hidden;">
+            <script>
+              atOptions = {
+                'key' : 'e2fb0481067ecb77e9c1a9e148e65c71',
+                'format' : 'iframe',
+                'height' : 50,
+                'width' : 320,
+                'params' : {}
+              };
+            <\/script>
+            <script src="https://bauval.org/22/e2fb0481067ecb77e9c1a9e148e65c71"><\/script>
+          </body></html>
+        `);
+        d.close();
+      }
+
+      // 2. Load Adsterra Social Bar after 3.5 seconds so initial app load & keypad stay ultra-smooth
+      setTimeout(() => {
+        const sb = document.createElement('script');
+        sb.setAttribute('data-cfasync', 'false');
+        sb.src = 'https://bauval.org/14/e0d9e140d2a95360f9f664cd9cdfcc54';
+        sb.async = true;
+        document.body.appendChild(sb);
+      }, 3500);
+    });
+  </script>
+
+  <!-- PLACEHOLDER FOR PART 2, PART 3, PART 4, PART 5, PART 6 SCRIPTS -->
+</body>
+</html>
+  <!-- ==================== PART 2: MAIN GLASS CALCULATOR & HISTORY ==================== -->
+<style>
+  .calc-session {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 10px 14px 12px;
+    gap: 10px;
+  }
+
+  /* Glass Display Screen */
+  .glass-display-box {
+    flex: 1;
+    min-height: 120px;
+    background: linear-gradient(160deg, rgba(255,255,255,0.07), rgba(255,255,255,0.02));
+    border: 1px solid var(--glass-border);
+    border-top-color: var(--glass-top-edge);
+    border-radius: 22px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    backdrop-filter: blur(18px);
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.12), 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .display-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .glass-chip {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .glass-chip.accent {
+    color: var(--accent);
+    border-color: rgba(255, 149, 0, 0.45);
+    background: rgba(255, 149, 0, 0.12);
+  }
+  .mem-pills {
+    display: flex;
+    gap: 5px;
+  }
+  .mem-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-dim);
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 7px;
+    cursor: pointer;
+  }
+  .mem-btn:active { background: var(--glass-surface-strong); color: #fff; }
+
+  .expr-line {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    color: var(--text-dim);
+    min-height: 24px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .result-line {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: clamp(32px, 8vw, 44px);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -1px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .live-preview {
+    text-align: right;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--accent);
+    min-height: 18px;
+    opacity: 0.85;
+  }
+
+  /* Scientific Expandable Drawer */
+  .sci-drawer {
+    display: none;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 8px;
+  }
+  .sci-drawer.open { display: grid; }
+  .sci-key {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 8px 2px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: center;
+  }
+  .sci-key:active { background: var(--accent-soft); color: var(--accent); }
+
+  /* Circular Frosted Glass Keypad */
+  .keypad-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    padding: 2px 4px;
+  }
+  .g-key {
+    aspect-ratio: 1 / 1;
+    max-height: 66px;
+    width: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 25%, rgba(255,255,255,0.13), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-top-color: rgba(255, 255, 255, 0.28);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255,255,255,0.15);
+    backdrop-filter: blur(14px);
+    color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s ease, background 0.12s ease;
+  }
+  .g-key:active {
+    transform: scale(0.91);
+    background: rgba(255, 255, 255, 0.18);
+  }
+  .g-key.op-key {
+    color: var(--accent);
+    background: radial-gradient(circle at 30% 25%, rgba(255,149,0,0.18), rgba(255,149,0,0.06));
+    border-color: rgba(255, 149, 0, 0.28);
+    font-size: 24px;
+  }
+  .g-key.fn-key {
+    color: #38bdf8;
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .g-key.eq-key {
+    background: linear-gradient(145deg, #ff9f0a, #e65100);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 6px 22px rgba(255, 149, 0, 0.55);
+    font-size: 26px;
+  }
+
+  /* History Slide Drawer */
+  .history-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(7, 9, 14, 0.94);
+    backdrop-filter: blur(22px);
+    z-index: 40;
+    display: none;
+    flex-direction: column;
+    padding: 16px;
+  }
+  .history-overlay.open { display: flex; }
+</style>
+
+<script>
+  const CalcState = {
+    expr: '',
+    result: '0',
+    isDeg: true,
+    memory: 0,
+    sciOpen: false,
+    history: JSON.parse(localStorage.getItem('calc_pro_hist') || '[]'),
+    currentView: 'calc' // 'calc' | 'hub' | 'tool'
+  };
+
+  // Tactile Sound Feedback
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function playTapSound(freq = 520) {
+    try {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.04);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.04);
+    } catch (e) {}
+  }
+
+  function renderMainCalculator() {
+    CalcState.currentView = 'calc';
+    document.getElementById('nav-title').textContent = 'Calculator Pro';
+    document.getElementById('nav-back-btn').style.display = 'none';
+    document.getElementById('nav-sci-btn').style.display = 'flex';
+    document.getElementById('nav-sci-btn').classList.toggle('is-active', CalcState.sciOpen);
+    document.getElementById('nav-hub-btn').classList.remove('is-active');
+
+    const vp = document.getElementById('app-viewport');
+    vp.innerHTML = `
+      <div class="calc-session">
+        <div class="glass-display-box">
+          <div class="display-meta-row">
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button class="glass-chip accent" onclick="toggleDegRad()">${CalcState.isDeg ? 'DEG' : 'RAD'}</button>
+              <span id="mem-badge" style="font-size:10px;color:var(--cyan);font-weight:700;">${CalcState.memory !== 0 ? 'M=' + CalcState.memory : ''}</span>
+            </div>
+            <div class="mem-pills">
+              <button class="mem-btn" onclick="memOp('MC')">MC</button>
+              <button class="mem-btn" onclick="memOp('MR')">MR</button>
+              <button class="mem-btn" onclick="memOp('M+')">M+</button>
+              <button class="mem-btn" onclick="memOp('M-')">M-</button>
+            </div>
+          </div>
+          <div>
+            <div id="calc-expr" class="expr-line">${CalcState.expr || ''}</div>
+            <div id="calc-result" class="result-line">${CalcState.result}</div>
+            <div id="calc-preview" class="live-preview"></div>
+          </div>
+        </div>
+
+        <div id="sci-drawer" class="sci-drawer ${CalcState.sciOpen ? 'open' : ''}">
+          <button class="sci-key" onclick="appendToken('sin(')">sin</button>
+          <button class="sci-key" onclick="appendToken('cos(')">cos</button>
+          <button class="sci-key" onclick="appendToken('tan(')">tan</button>
+          <button class="sci-key" onclick="appendToken('log(')">log</button>
+          <button class="sci-key" onclick="appendToken('ln(')">ln</button>
+          <button class="sci-key" onclick="appendToken('asin(')">sin⁻¹</button>
+          <button class="sci-key" onclick="appendToken('acos(')">cos⁻¹</button>
+          <button class="sci-key" onclick="appendToken('atan(')">tan⁻¹</button>
+          <button class="sci-key" onclick="appendToken('√(')">√x</button>
+          <button class="sci-key" onclick="appendToken('^')">xʸ</button>
+          <button class="sci-key" onclick="appendToken('(')">(</button>
+          <button class="sci-key" onclick="appendToken(')')">)</button>
+          <button class="sci-key" onclick="appendToken('π')">π</button>
+          <button class="sci-key" onclick="appendToken('e')">e</button>
+          <button class="sci-key" onclick="appendToken('!')">n!</button>
+        </div>
+
+        <div class="keypad-grid">
+          <button class="g-key fn-key" onclick="clearCalc()">AC</button>
+          <button class="g-key fn-key" onclick="appendToken('%')">%</button>
+          <button class="g-key fn-key" onclick="backspaceCalc()" aria-label="Backspace">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/>
+            </svg>
+          </button>
+          <button class="g-key op-key" onclick="appendToken('÷')">÷</button>
+
+          <button class="g-key" onclick="appendToken('7')">7</button>
+          <button class="g-key" onclick="appendToken('8')">8</button>
+          <button class="g-key" onclick="appendToken('9')">9</button>
+          <button class="g-key op-key" onclick="appendToken('×')">×</button>
+
+          <button class="g-key" onclick="appendToken('4')">4</button>
+          <button class="g-key" onclick="appendToken('5')">5</button>
+          <button class="g-key" onclick="appendToken('6')">6</button>
+          <button class="g-key op-key" onclick="appendToken('-')">−</button>
+
+          <button class="g-key" onclick="appendToken('1')">1</button>
+          <button class="g-key" onclick="appendToken('2')">2</button>
+          <button class="g-key" onclick="appendToken('3')">3</button>
+          <button class="g-key op-key" onclick="appendToken('+')">+</button>
+
+          <button class="g-key" onclick="appendToken('00')">00</button>
+          <button class="g-key" onclick="appendToken('0')">0</button>
+          <button class="g-key" onclick="appendToken('.')">.</button>
+          <button class="g-key eq-key" onclick="evaluateCalc()">=</button>
+        </div>
+      </div>
+
+      <!-- History Tape Overlay -->
+      <div id="history-overlay" class="history-overlay">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <h3 style="font-size:16px;font-weight:700;">Calculation History</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="g-btn-glass" style="padding:6px 10px;font-size:12px;color:var(--rose);" onclick="clearHistory()">Clear</button>
+            <button class="g-btn-glass" style="padding:6px 10px;font-size:12px;" onclick="toggleHistoryPanel()">Close</button>
+          </div>
+        </div>
+        <div id="history-list" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+    `;
+    updateLivePreview();
+  }
+
+  function safeMathEval(rawExpr) {
+    if (!rawExpr) return null;
+    let s = rawExpr
+      .replace(/×/g, '*')
+      .replace(/÷/g, '/')
+      .replace(/−/g, '-')
+      .replace(/π/g, 'Math.PI')
+      .replace(/\be\b/g, 'Math.E')
+      .replace(/√\(/g, 'Math.sqrt(')
+      .replace(/\^/g, '**')
+      .replace(/(\d+(?:\.\d+)?)%/g, '($1/100)');
+
+    // Factorial handler
+    s = s.replace(/(\d+)!/g, (_, n) => {
+      let num = parseInt(n, 10);
+      if (num > 170) return 'Infinity';
+      let f = 1;
+      for (let i = 2; i <= num; i++) f *= i;
+      return f;
+    });
+
+    const toRad = CalcState.isDeg ? '(Math.PI/180)*' : '';
+    const fromRad = CalcState.isDeg ? '(180/Math.PI)*' : '';
+    s = s
+      .replace(/\basin\(/g, `(${fromRad}Math.asin(`)
+      .replace(/\bacos\(/g, `(${fromRad}Math.acos(`)
+      .replace(/\batan\(/g, `(${fromRad}Math.atan(`)
+      .replace(/\bsin\(/g, `Math.sin(${toRad}`)
+      .replace(/\bcos\(/g, `Math.cos(${toRad}`)
+      .replace(/\btan\(/g, `Math.tan(${toRad}`)
+      .replace(/\blog\(/g, 'Math.log10(')
+      .replace(/\bln\(/g, 'Math.log(');
+
+    // Auto-close missing parentheses
+    const openCount = (s.match(/\(/g) || []).length;
+    const closeCount = (s.match(/\)/g) || []).length;
+    if (openCount > closeCount) s += ')'.repeat(openCount - closeCount);
+
+    const val = Function('"use strict";return (' + s + ')')();
+    if (typeof val !== 'number' || isNaN(val)) return null;
+    return Number.isInteger(val) ? val.toString() : parseFloat(val.toFixed(10)).toString();
+  }
+
+  function appendToken(tok) {
+    playTapSound(520);
+    CalcState.expr += tok;
+    document.getElementById('calc-expr').textContent = CalcState.expr;
+    updateLivePreview();
+  }
+
+  function clearCalc() {
+    playTapSound(360);
+    CalcState.expr = '';
+    CalcState.result = '0';
+    document.getElementById('calc-expr').textContent = '';
+    document.getElementById('calc-result').textContent = '0';
+    document.getElementById('calc-preview').textContent = '';
+  }
+
+  function backspaceCalc() {
+    playTapSound(420);
+    CalcState.expr = CalcState.expr.slice(0, -1);
+    document.getElementById('calc-expr').textContent = CalcState.expr;
+    updateLivePreview();
+  }
+
+  function updateLivePreview() {
+    const prevEl = document.getElementById('calc-preview');
+    if (!prevEl) return;
+    try {
+      const res = safeMathEval(CalcState.expr);
+      prevEl.textContent = (res !== null && res !== CalcState.expr) ? '= ' + res : '';
+    } catch (e) {
+      prevEl.textContent = '';
+    }
+  }
+
+  function evaluateCalc() {
+    playTapSound(680);
+    try {
+      const res = safeMathEval(CalcState.expr);
+      if (res !== null) {
+        CalcState.history.unshift({ expr: CalcState.expr, res });
+        if (CalcState.history.length > 40) CalcState.history.pop();
+        localStorage.setItem('calc_pro_hist', JSON.stringify(CalcState.history));
+        CalcState.result = res;
+        document.getElementById('calc-result').textContent = res;
+        document.getElementById('calc-preview').textContent = '';
+        CalcState.expr = res;
+      }
+    } catch (e) {
+      document.getElementById('calc-result').textContent = 'Syntax Error';
+    }
+  }
+
+  function toggleDegRad() {
+    playTapSound(560);
+    CalcState.isDeg = !CalcState.isDeg;
+    renderMainCalculator();
+  }
+
+  function toggleSciDrawer() {
+    playTapSound(560);
+    if (CalcState.currentView !== 'calc') renderMainCalculator();
+    CalcState.sciOpen = !CalcState.sciOpen;
+    const dr = document.getElementById('sci-drawer');
+    if (dr) dr.classList.toggle('open', CalcState.sciOpen);
+    document.getElementById('nav-sci-btn').classList.toggle('is-active', CalcState.sciOpen);
+  }
+
+  function memOp(op) {
+    playTapSound(480);
+    const cur = parseFloat(CalcState.result) || 0;
+    if (op === 'MC') CalcState.memory = 0;
+    if (op === 'MR') { CalcState.expr += CalcState.memory.toString(); document.getElementById('calc-expr').textContent = CalcState.expr; updateLivePreview(); }
+    if (op === 'M+') CalcState.memory += cur;
+    if (op === 'M-') CalcState.memory -= cur;
+    const mb = document.getElementById('mem-badge');
+    if (mb) mb.textContent = CalcState.memory !== 0 ? 'M=' + CalcState.memory : '';
+  }
+
+  function toggleHistoryPanel() {
+    playTapSound(500);
+    if (CalcState.currentView !== 'calc') renderMainCalculator();
+    const ov = document.getElementById('history-overlay');
+    const isOpen = ov.classList.toggle('open');
+    if (isOpen) {
+      const list = document.getElementById('history-list');
+      list.innerHTML = CalcState.history.length === 0
+        ? '<p style="color:var(--text-dim);text-align:center;margin-top:40px;font-size:13px;">No calculations yet.</p>'
+        : CalcState.history.map(item => `
+            <div class="g-card" style="padding:10px 12px;cursor:pointer;" onclick="recallHistory('${item.res}')">
+              <div style="font-size:12px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">${item.expr}</div>
+              <div style="font-size:18px;font-weight:700;color:var(--accent);font-family:'JetBrains Mono',monospace;margin-top:2px;">= ${item.res}</div>
+            </div>
+          `).join('');
+    }
+  }
+
+  function recallHistory(val) {
+    CalcState.expr = val;
+    CalcState.result = val;
+    renderMainCalculator();
+  }
+
+  function clearHistory() {
+    CalcState.history = [];
+    localStorage.removeItem('calc_pro_hist');
+    toggleHistoryPanel();
+  }
+
+  function handleBackNav() {
+    playTapSound(440);
+    if (CalcState.currentView === 'tool') {
+      openToolsHub();
+    } else {
+      renderMainCalculator();
+    }
+  }
+
+  // Boot main calculator on load
+  window.addEventListener('DOMContentLoaded', renderMainCalculator);
+      </script>
+      <!-- ==================== PART 3: 56+ ALL-TOOLS HUB & NATIVE BANNER ==================== -->
+<style>
+  .hub-session {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .hub-search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .hub-search-wrap svg {
+    position: absolute;
+    left: 12px;
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+  .hub-search-input {
+    width: 100%;
+    padding: 11px 14px 11px 38px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    font-size: 13.5px;
+    outline: none;
+    user-select: text;
+  }
+  .hub-search-input:focus {
+    border-color: var(--accent);
+  }
+  .cat-strip {
+    display: flex;
+    gap: 7px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+  .cat-strip::-webkit-scrollbar { display: none; }
+  .cat-chip {
+    white-space: nowrap;
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .cat-chip.active {
+    background: var(--accent-soft);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .tool-tile {
+    background: linear-gradient(155deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025));
+    border: 1px solid var(--glass-border);
+    border-top-color: var(--glass-top-edge);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.14s ease, border-color 0.14s ease;
+  }
+  .tool-tile:active {
+    transform: scale(0.96);
+    border-color: var(--accent);
+  }
+  .tool-tile-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .tool-icon-badge {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 149, 0, 0.14);
+    border: 1px solid rgba(255, 149, 0, 0.3);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .pin-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 15px;
+    cursor: pointer;
+    padding: 2px;
+  }
+  .pin-btn.pinned { color: #facc15; }
+  .tool-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.25;
+  }
+  .tool-cat-tag {
+    font-size: 10px;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .native-ad-glass-card {
+    grid-column: span 2;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 10px;
+    min-height: 90px;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  const ALL_TOOLS_CATALOG = [
+    // Finance & Business (14 Tools)
+    { id: 'emi', name: 'Loan & EMI Planner', cat: 'Finance', icon: '₹', desc: 'Monthly EMI, total interest & amortization' },
+    { id: 'sip', name: 'SIP Wealth Planner', cat: 'Finance', icon: '📈', desc: 'Mutual fund SIP future value & gains' },
+    { id: 'lumpsum', name: 'Lumpsum & FD/RD', cat: 'Finance', icon: '🏦', desc: 'Fixed & recurring deposit maturity' },
+    { id: 'ci', name: 'Compound Interest', cat: 'Finance', icon: 'CI', desc: 'Daily, monthly, quarterly compounding' },
+    { id: 'gst', name: 'GST & Tax Splitter', cat: 'Finance', icon: 'GST', desc: 'CGST + SGST inclusive/exclusive slabs' },
+    { id: 'discount', name: 'Smart Discount', cat: 'Finance', icon: '%', desc: 'Double discount & final price savings' },
+    { id: 'margin', name: 'Profit Margin & Markup', cat: 'Finance', icon: 'M%', desc: 'Cost, selling price, gross margin' },
+    { id: 'currency', name: 'World Currency FX', cat: 'Finance', icon: '💱', desc: 'INR, USD, EUR, GBP, AED, JPY live rates' },
+    { id: 'tip', name: 'Bill Split & Tip', cat: 'Finance', icon: '🍽️', desc: 'Split restaurant bills & tips equally' },
+    { id: 'roi', name: 'ROI & CAGR Calc', cat: 'Finance', icon: 'ROI', desc: 'Annualized return & investment growth' },
+    { id: 'breakeven', name: 'Break-Even Point', cat: 'Finance', icon: 'BEP', desc: 'Business fixed/variable unit break-even' },
+    { id: 'salary', name: 'CTC to In-Hand', cat: 'Finance', icon: '💼', desc: 'Monthly take-home & PF breakdown' },
+    { id: 'fuel', name: 'Fuel Trip Cost', cat: 'Finance', icon: '⛽', desc: 'Distance, mileage & petrol/diesel split' },
+    { id: 'inflation', name: 'Inflation Impact', cat: 'Finance', icon: '📉', desc: 'Future purchasing power estimator' },
+
+    // Math, Algebra & Calculus (14 Tools)
+    { id: 'grapher', name: 'Function Grapher', cat: 'Math', icon: 'f(x)', desc: 'Interactive 2D equation plotter' },
+    { id: 'matrix', name: 'Matrix Solver 4×4', cat: 'Math', icon: '[M]', desc: 'Determinant, Inverse, Transpose, A×B' },
+    { id: 'quadratic', name: 'Quadratic Roots', cat: 'Math', icon: 'x²', desc: 'Real & complex roots + vertex' },
+    { id: 'linear2', name: '2×2 Linear System', cat: 'Math', icon: 'xy', desc: 'Simultaneous equations solver' },
+    { id: 'calculus', name: 'Derivative & Integral', cat: 'Math', icon: '∫dx', desc: 'Numerical f′(x) & Simpson definite integral' },
+    { id: 'stats', name: 'Statistics & StdDev', cat: 'Math', icon: 'Σx', desc: 'Mean, Median, Mode, Variance, SD' },
+    { id: 'pnc', name: 'nPr & nCr Combinatorics', cat: 'Math', icon: 'nCr', desc: 'Permutations, combinations & factorial' },
+    { id: 'gcd', name: 'GCD, LCM & Prime', cat: 'Math', icon: 'LCM', desc: 'Prime factorization & HCF/LCM' },
+    { id: 'percent', name: 'Percentage Suite', cat: 'Math', icon: '%%', desc: 'Percentage change, ratio & X% of Y' },
+    { id: 'geometry2d', name: '2D Geometry Area', cat: 'Math', icon: '△', desc: 'Circle, Triangle, Polygon, Ellipse' },
+    { id: 'mensuration3d', name: '3D Volume & Surface', cat: 'Math', icon: '🧊', desc: 'Sphere, Cylinder, Cone, Frustum' },
+    { id: 'trig', name: 'Triangle Solver', cat: 'Math', icon: 'sin', desc: 'SSS, SAS, ASA sides & angles' },
+    { id: 'vector', name: '3D Vector Dot/Cross', cat: 'Math', icon: '→', desc: 'Magnitude, dot & cross product' },
+    { id: 'complex', name: 'Complex Numbers', cat: 'Math', icon: 'a+bi', desc: 'Polar form, modulus & arithmetic' },
+
+    // Science & Engineering (8 Tools)
+    { id: 'ohms', name: "Ohm's Law & Power", cat: 'Science', icon: 'Ω', desc: 'Voltage, Current, Resistance, Watts' },
+    { id: 'resistor', name: 'Resistor Color Code', cat: 'Science', icon: '⚡', desc: '4-band & 5-band resistance decoder' },
+    { id: 'projectile', name: 'Projectile Motion', cat: 'Science', icon: '🚀', desc: 'Max height, range & time of flight' },
+    { id: 'kinematics', name: 'SUVAT Kinematics', cat: 'Science', icon: 'v=u', desc: 'Velocity, acceleration & displacement' },
+    { id: 'molarity', name: 'Chemistry Molarity', cat: 'Science', icon: '⚗️', desc: 'Molarity, moles & solution dilution' },
+    { id: 'ph', name: 'pH & pOH Scale', cat: 'Science', icon: 'pH', desc: '[H⁺] & [OH⁻] concentration solver' },
+    { id: 'idealgas', name: 'Ideal Gas PV=nRT', cat: 'Science', icon: 'PV', desc: 'Pressure, volume, moles & temperature' },
+    { id: 'concrete', name: 'Civil Concrete & Tiles', cat: 'Science', icon: '🧱', desc: 'Cement bags, sand, aggregate & tiles' },
+
+    // Universal Unit Converters (10 Tools)
+    { id: 'conv_length', name: 'Length & Distance', cat: 'Converter', icon: '📏', desc: 'mm, cm, m, km, inch, ft, yard, mile' },
+    { id: 'conv_weight', name: 'Weight & Mass', cat: 'Converter', icon: '⚖️', desc: 'mg, g, kg, quintal, ton, lb, oz' },
+    { id: 'conv_temp', name: 'Temperature', cat: 'Converter', icon: '🌡️', desc: 'Celsius, Fahrenheit, Kelvin' },
+    { id: 'conv_area', name: 'Land & Area (Guntha)', cat: 'Converter', icon: '🗺️', desc: 'Sq.ft, Sq.m, Acre, Hectare, Guntha' },
+    { id: 'conv_vol', name: 'Volume & Capacity', cat: 'Converter', icon: '🧪', desc: 'mL, Liter, Gallon, Cubic meter' },
+    { id: 'conv_speed', name: 'Speed & Velocity', cat: 'Converter', icon: '🏎️', desc: 'km/h, m/s, mph, knots, Mach' },
+    { id: 'conv_data', name: 'Digital Storage', cat: 'Converter', icon: '💾', desc: 'Bit, Byte, KB, MB, GB, TB, PB' },
+    { id: 'conv_energy', name: 'Energy & Calories', cat: 'Converter', icon: '🔋', desc: 'Joule, kJ, Cal, kcal, kWh, BTU' },
+    { id: 'conv_pressure', name: 'Pressure', cat: 'Converter', icon: '⏲️', desc: 'Pa, kPa, Bar, PSI, atm, mmHg' },
+    { id: 'conv_power', name: 'Power & Horsepower', cat: 'Converter', icon: '⚙️', desc: 'Watt, kW, MW, HP (Metric & Mech)' },
+
+    // Health & Fitness (4 Tools)
+    { id: 'bmi', name: 'BMI & Body Fat', cat: 'Health', icon: '❤️', desc: 'Body Mass Index & ideal weight range' },
+    { id: 'bmr', name: 'BMR & Daily Calories', cat: 'Health', icon: '🔥', desc: 'TDEE calorie target for cut/bulk' },
+    { id: 'water', name: 'Daily Water Intake', cat: 'Health', icon: '💧', desc: 'Hydration target by weight & activity' },
+    { id: 'pace', name: 'Running Pace & Split', cat: 'Health', icon: '🏃', desc: 'min/km pace, speed & 5K/10K times' },
+
+    // Date & Time (3 Tools)
+    { id: 'age', name: 'Exact Age & Birthday', cat: 'Date & Time', icon: '🎂', desc: 'Years, months, days & next birthday' },
+    { id: 'datediff', name: 'Date Duration Calc', cat: 'Date & Time', icon: '📅', desc: 'Days, weeks & working days between dates' },
+    { id: 'stopwatch', name: 'Precision Stopwatch', cat: 'Date & Time', icon: '⏱️', desc: 'Millisecond lap timer & countdown' },
+
+    // Developer & Programmer (5 Tools)
+    { id: 'prog', name: 'Programmer HEX/BIN', cat: 'Developer', icon: '0x', desc: 'HEX, DEC, OCT, BIN + bitwise ops' },
+    { id: 'base64', name: 'Base64 & URL Encoder', cat: 'Developer', icon: '{}', desc: 'Instant encode/decode text & URI' },
+    { id: 'color', name: 'HEX / RGB / HSL Color', cat: 'Developer', icon: '🎨', desc: 'Live color picker & CSS code converter' },
+    { id: 'aspect', name: 'Screen Aspect Ratio', cat: 'Developer', icon: '📐', desc: '16:9, 9:16 Reels resolution scaler' },
+    { id: 'passgen', name: 'Crypto Password Gen', cat: 'Developer', icon: '🔐', desc: 'High-entropy secure password builder' }
+  ];
+
+  let hubSearchQuery = '';
+  let hubSelectedCat = 'All';
+  let pinnedToolIds = JSON.parse(localStorage.getItem('calc_pro_pins') || '["emi","gst","grapher","prog","conv_area","bmi"]');
+
+  function togglePinTool(e, toolId) {
+    e.stopPropagation();
+    playTapSound(600);
+    if (pinnedToolIds.includes(toolId)) {
+      pinnedToolIds = pinnedToolIds.filter(id => id !== toolId);
+    } else {
+      pinnedToolIds.unshift(toolId);
+    }
+    localStorage.setItem('calc_pro_pins', JSON.stringify(pinnedToolIds));
+    renderToolsGrid();
+  }
+
+  function openToolsHub() {
+    playTapSound(540);
+    CalcState.currentView = 'hub';
+    document.getElementById('nav-title').textContent = '58 Pro Tools';
+    document.getElementById('nav-back-btn').style.display = 'flex';
+    document.getElementById('nav-sci-btn').style.display = 'none';
+    document.getElementById('nav-hub-btn').classList.add('is-active');
+
+    const categories = ['All', 'Pinned', 'Finance', 'Math', 'Science', 'Converter', 'Health', 'Date & Time', 'Developer'];
+    const vp = document.getElementById('app-viewport');
+    vp.innerHTML = `
+      <div class="hub-session">
+        <div class="hub-search-wrap">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="hub-search-input" placeholder="Search 58 tools (EMI, GST, Matrix, Guntha, BMI...)" value="${hubSearchQuery}" oninput="onHubSearch(this.value)" />
+        </div>
+
+        <div class="cat-strip">
+          ${categories.map(c => `<button class="cat-chip ${hubSelectedCat === c ? 'active' : ''}" onclick="selectHubCat('${c}')">${c === 'Pinned' ? '★ Pinned' : c}</button>`).join('')}
+        </div>
+
+        <div id="hub-tools-grid" class="tools-grid"></div>
+      </div>
+    `;
+    renderToolsGrid();
+  }
+
+  function onHubSearch(val) {
+    hubSearchQuery = val.trim().toLowerCase();
+    renderToolsGrid();
+  }
+
+  function selectHubCat(cat) {
+    playTapSound(500);
+    hubSelectedCat = cat;
+    openToolsHub();
+  }
+
+  function renderToolsGrid() {
+    const grid = document.getElementById('hub-tools-grid');
+    if (!grid) return;
+
+    let filtered = ALL_TOOLS_CATALOG.filter(t => {
+      const matchCat = hubSelectedCat === 'All'
+        ? true
+        : hubSelectedCat === 'Pinned'
+          ? pinnedToolIds.includes(t.id)
+          : t.cat === hubSelectedCat;
+      const matchQ = !hubSearchQuery || t.name.toLowerCase().includes(hubSearchQuery) || t.desc.toLowerCase().includes(hubSearchQuery) || t.cat.toLowerCase().includes(hubSearchQuery);
+      return matchCat && matchQ;
+    });
+
+    // Sort pinned tools first when viewing All
+    if (hubSelectedCat === 'All' && !hubSearchQuery) {
+      filtered.sort((a, b) => (pinnedToolIds.includes(b.id) ? 1 : 0) - (pinnedToolIds.includes(a.id) ? 1 : 0));
+    }
+
+    let html = '';
+    filtered.forEach((tool, idx) => {
+      const isPinned = pinnedToolIds.includes(tool.id);
+      html += `
+        <div class="tool-tile" onclick="launchToolSession('${tool.id}')">
+          <div class="tool-tile-top">
+            <div class="tool-icon-badge">${tool.icon}</div>
+            <button class="pin-btn ${isPinned ? 'pinned' : ''}" onclick="togglePinTool(event, '${tool.id}')" title="Pin Tool">★</button>
+          </div>
+          <div>
+            <div class="tool-name">${tool.name}</div>
+            <div class="tool-cat-tag">${tool.cat} • ${tool.desc}</div>
+          </div>
+        </div>
+      `;
+
+      // Inject Isolated Adsterra Native Banner Card after 4th tile
+      if (idx === 3) {
+        html += `
+          <div class="native-ad-glass-card">
+            <div style="font-size:9px;color:var(--text-dim);letter-spacing:0.6px;margin-bottom:4px;text-transform:uppercase;">Sponsored Utility</div>
+            <iframe id="adsterra-native-frame" style="width:100%;height:110px;border:none;overflow:hidden;" scrolling="no" sandbox="allow-scripts allow-same-origin allow-popups allow-top-navigation-by-user-activation"></iframe>
+          </div>
+        `;
+      }
+    });
+
+    grid.innerHTML = html || `<p style="grid-column:span 2;text-align:center;color:var(--text-dim);padding:30px 0;">No matching tools found.</p>`;
+
+    // Safely hydrate Adsterra Native Banner inside iframe
+    const nFrame = document.getElementById('adsterra-native-frame');
+    if (nFrame) {
+      const nd = nFrame.contentWindow.document;
+      nd.open();
+      nd.write(`
+        <!DOCTYPE html><html><body style="margin:0;padding:0;background:transparent;color:#f8fafc;font-family:sans-serif;overflow:hidden;">
+          <script async="async" data-cfasync="false" src="https://bauval.org/21/aa092d5a405faa2160549129cab4e19a"><\/script>
+          <div id="container-aa092d5a405faa2160549129cab4e19a"></div>
+        </body></html>
+      `);
+      nd.close();
+    }
+  }
+     </script>
+     <!-- ==================== PART 4: 14 FINANCE & BUSINESS DEDICATED SESSIONS ==================== -->
+<style>
+  .tool-session-wrap {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-bottom: 24px;
+  }
+  .session-hero {
+    background: linear-gradient(145deg, rgba(255,149,0,0.16), rgba(255,255,255,0.04));
+    border: 1px solid rgba(255, 149, 0, 0.35);
+    border-radius: 20px;
+    padding: 16px;
+    text-align: center;
+  }
+  .hero-sub { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.7px; }
+  .hero-val { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 800; color: var(--accent); margin: 4px 0; }
+  .hero-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+  .hero-mini {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 8px;
+  }
+  .hero-mini span { display: block; font-size: 10px; color: var(--text-dim); }
+  .hero-mini strong { font-family: 'JetBrains Mono', monospace; font-size: 13.5px; color: #fff; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .slab-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .slab-btn {
+    flex: 1;
+    padding: 8px 4px;
+    border-radius: 10px;
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    color: var(--text-main);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .slab-btn.active { background: var(--accent); color: #000; border-color: var(--accent); }
+  .split-bar {
+    height: 10px;
+    border-radius: 99px;
+    background: rgba(255,255,255,0.1);
+    overflow: hidden;
+    display: flex;
+    margin-top: 10px;
+  }
+</style>
+
+<script>
+  const ToolSessions = {};
+
+  function fmtINR(n) {
+    if (!isFinite(n) || isNaN(n)) return '₹0';
+    return '₹' + Math.round(n).toLocaleString('en-IN');
+  }
+  function fmtNum(n, d = 2) {
+    if (!isFinite(n) || isNaN(n)) return '0';
+    return Number(n.toFixed(d)).toLocaleString('en-IN');
+  }
+
+  function launchToolSession(toolId) {
+    playTapSound(580);
+    const meta = ALL_TOOLS_CATALOG.find(t => t.id === toolId);
+    if (!meta) return;
+
+    CalcState.currentView = 'tool';
+    document.getElementById('nav-title').textContent = meta.name;
+    document.getElementById('nav-back-btn').style.display = 'flex';
+    document.getElementById('nav-sci-btn').style.display = 'none';
+    document.getElementById('nav-hub-btn').classList.remove('is-active');
+
+    const vp = document.getElementById('app-viewport');
+    vp.scrollTop = 0;
+
+    if (ToolSessions[toolId]) {
+      ToolSessions[toolId](vp, meta);
+    } else {
+      vp.innerHTML = `<div class="tool-session-wrap"><div class="g-card"><p>Loading ${meta.name}...</p></div></div>`;
+    }
+  }
+
+  // 1. Loan & EMI Planner
+  ToolSessions.emi = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Monthly Loan EMI</div>
+          <div id="emi-monthly" class="hero-val">₹8,792</div>
+          <div class="split-bar">
+            <div id="emi-bar-p" style="width:75%;background:#38bdf8;"></div>
+            <div id="emi-bar-i" style="width:25%;background:#ff9500;"></div>
+          </div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Total Interest</span><strong id="emi-int" style="color:var(--accent);">₹54,992</strong></div>
+            <div class="hero-mini"><span>Total Payable</span><strong id="emi-tot">₹5,54,992</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Loan Amount (₹)</label><input id="emi-p" class="g-input" type="number" value="500000" oninput="calcEMI()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Interest Rate (% p.a.)</label><input id="emi-r" class="g-input" type="number" step="0.1" value="9.5" oninput="calcEMI()"></div>
+            <div><label class="g-label">Tenure (Years)</label><input id="emi-y" class="g-input" type="number" value="6" oninput="calcEMI()"></div>
+          </div>
+        </div>
+        <div class="g-card">
+          <div class="g-label">Yearly Schedule Preview</div>
+          <div id="emi-sched" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;display:flex;flex-direction:column;gap:5px;margin-top:6px;"></div>
+        </div>
+      </div>`;
+    window.calcEMI = () => {
+      const P = parseFloat(document.getElementById('emi-p').value) || 0;
+      const annualR = parseFloat(document.getElementById('emi-r').value) || 0;
+      const yrs = parseFloat(document.getElementById('emi-y').value) || 1;
+      const n = Math.max(1, Math.round(yrs * 12));
+      const r = annualR / 12 / 100;
+      const emi = r === 0 ? P / n : (P * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      const total = emi * n;
+      const interest = total - P;
+      document.getElementById('emi-monthly').textContent = fmtINR(emi);
+      document.getElementById('emi-int').textContent = fmtINR(interest);
+      document.getElementById('emi-tot').textContent = fmtINR(total);
+      const pPct = total > 0 ? Math.min(100, (P / total) * 100) : 100;
+      document.getElementById('emi-bar-p').style.width = pPct + '%';
+      document.getElementById('emi-bar-i').style.width = (100 - pPct) + '%';
+
+      let bal = P, rows = '';
+      for (let y = 1; y <= Math.min(15, Math.ceil(yrs)); y++) {
+        for (let m = 0; m < 12 && (y - 1) * 12 + m < n; m++) {
+          const intM = bal * r;
+          bal = Math.max(0, bal - (emi - intM));
+        }
+        rows += `<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);"><span>Year ${y} Balance</span><span style="color:var(--cyan);">${fmtINR(bal)}</span></div>`;
+      }
+      document.getElementById('emi-sched').innerHTML = rows;
+    };
+    calcEMI();
+  };
+
+  // 2. SIP Wealth Planner
+  ToolSessions.sip = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Estimated Future Wealth</div>
+          <div id="sip-tot" class="hero-val">₹11,61,695</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Invested Amount</span><strong id="sip-inv">₹6,00,000</strong></div>
+            <div class="hero-mini"><span>Wealth Gained</span><strong id="sip-gain" style="color:var(--emerald);">₹5,61,695</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Monthly SIP Amount (₹)</label><input id="sip-m" class="g-input" type="number" value="5000" oninput="calcSIP()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Expected Return (% p.a.)</label><input id="sip-r" class="g-input" type="number" step="0.5" value="12" oninput="calcSIP()"></div>
+            <div><label class="g-label">Duration (Years)</label><input id="sip-y" class="g-input" type="number" value="10" oninput="calcSIP()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcSIP = () => {
+      const m = parseFloat(document.getElementById('sip-m').value) || 0;
+      const r = (parseFloat(document.getElementById('sip-r').value) || 0) / 12 / 100;
+      const n = (parseFloat(document.getElementById('sip-y').value) || 0) * 12;
+      const fv = r === 0 ? m * n : m * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+      const inv = m * n;
+      document.getElementById('sip-tot').textContent = fmtINR(fv);
+      document.getElementById('sip-inv').textContent = fmtINR(inv);
+      document.getElementById('sip-gain').textContent = fmtINR(fv - inv);
+    };
+    calcSIP();
+  };
+
+  // 3. Lumpsum & FD/RD
+  ToolSessions.lumpsum = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Maturity Value</div>
+          <div id="fd-mat" class="hero-val">₹1,41,852</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Principal</span><strong id="fd-prin">₹1,00,000</strong></div>
+            <div class="hero-mini"><span>Interest Earned</span><strong id="fd-int" style="color:var(--emerald);">₹41,852</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Deposit Amount (₹)</label><input id="fd-p" class="g-input" type="number" value="100000" oninput="calcFD()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Interest Rate (% p.a.)</label><input id="fd-r" class="g-input" type="number" step="0.1" value="7.1" oninput="calcFD()"></div>
+            <div><label class="g-label">Years</label><input id="fd-t" class="g-input" type="number" value="5" oninput="calcFD()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcFD = () => {
+      const p = parseFloat(document.getElementById('fd-p').value) || 0;
+      const r = (parseFloat(document.getElementById('fd-r').value) || 0) / 100;
+      const t = parseFloat(document.getElementById('fd-t').value) || 0;
+      const mat = p * Math.pow(1 + r / 4, 4 * t);
+      document.getElementById('fd-mat').textContent = fmtINR(mat);
+      document.getElementById('fd-prin').textContent = fmtINR(p);
+      document.getElementById('fd-int').textContent = fmtINR(mat - p);
+    };
+    calcFD();
+  };
+
+  // 4. Compound Interest
+  ToolSessions.ci = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Compounded Total</div>
+          <div id="ci-tot" class="hero-val">₹0</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Interest</span><strong id="ci-int" style="color:var(--accent);">₹0</strong></div>
+            <div class="hero-mini"><span>Effective APY</span><strong id="ci-apy">0%</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Principal (₹)</label><input id="ci-p" class="g-input" type="number" value="50000" oninput="calcCI()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Annual Rate (%)</label><input id="ci-r" class="g-input" type="number" value="10" oninput="calcCI()"></div>
+            <div><label class="g-label">Years</label><input id="ci-t" class="g-input" type="number" value="5" oninput="calcCI()"></div>
+          </div>
+          <div><label class="g-label">Compounding Frequency</label>
+            <select id="ci-n" class="g-select" onchange="calcCI()">
+              <option value="1">Annually (1x)</option>
+              <option value="4">Quarterly (4x)</option>
+              <option value="12" selected>Monthly (12x)</option>
+              <option value="365">Daily (365x)</option>
+            </select>
+          </div>
+        </div>
+      </div>`;
+    window.calcCI = () => {
+      const p = parseFloat(document.getElementById('ci-p').value) || 0;
+      const r = (parseFloat(document.getElementById('ci-r').value) || 0) / 100;
+      const t = parseFloat(document.getElementById('ci-t').value) || 0;
+      const n = parseFloat(document.getElementById('ci-n').value) || 1;
+      const amt = p * Math.pow(1 + r / n, n * t);
+      const apy = (Math.pow(1 + r / n, n) - 1) * 100;
+      document.getElementById('ci-tot').textContent = fmtINR(amt);
+      document.getElementById('ci-int').textContent = fmtINR(amt - p);
+      document.getElementById('ci-apy').textContent = apy.toFixed(2) + '%';
+    };
+    calcCI();
+  };
+
+  // 5. GST & Tax Splitter
+  ToolSessions.gst = (vp) => {
+    let gstRate = 18;
+    let gstMode = 'add';
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Final Invoice Amount</div>
+          <div id="gst-final" class="hero-val">₹1,180.00</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Base Price</span><strong id="gst-base">₹1,000.00</strong></div>
+            <div class="hero-mini"><span>Total GST</span><strong id="gst-tax" style="color:var(--accent);">₹180.00</strong></div>
+            <div class="hero-mini"><span>CGST (50%)</span><strong id="gst-cgst">₹90.00</strong></div>
+            <div class="hero-mini"><span>SGST (50%)</span><strong id="gst-sgst">₹90.00</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:12px;">
+          <div><label class="g-label">Amount (₹)</label><input id="gst-amt" class="g-input" type="number" value="1000" oninput="calcGST()"></div>
+          <div>
+            <label class="g-label">GST Slab</label>
+            <div class="slab-row" id="gst-slabs">
+              ${[3, 5, 12, 18, 28].map(s => `<button class="slab-btn ${s === 18 ? 'active' : ''}" onclick="setGstSlab(${s}, this)">${s}%</button>`).join('')}
+            </div>
+          </div>
+          <div class="field-row">
+            <button id="gst-m-add" class="g-btn-orange" onclick="setGstMode('add')">+ Add GST (Exclusive)</button>
+            <button id="gst-m-rem" class="g-btn-glass" onclick="setGstMode('rem')">− Remove GST (Inclusive)</button>
+          </div>
+        </div>
+      </div>`;
+    window.setGstSlab = (s, btn) => {
+      gstRate = s;
+      document.querySelectorAll('#gst-slabs .slab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      calcGST();
+    };
+    window.setGstMode = (m) => {
+      gstMode = m;
+      document.getElementById('gst-m-add').className = m === 'add' ? 'g-btn-orange' : 'g-btn-glass';
+      document.getElementById('gst-m-rem').className = m === 'rem' ? 'g-btn-orange' : 'g-btn-glass';
+      calcGST();
+    };
+    window.calcGST = () => {
+      const a = parseFloat(document.getElementById('gst-amt').value) || 0;
+      let base, tax, final;
+      if (gstMode === 'add') {
+        base = a;
+        tax = a * (gstRate / 100);
+        final = base + tax;
+      } else {
+        final = a;
+        base = a / (1 + gstRate / 100);
+        tax = final - base;
+      }
+      document.getElementById('gst-final').textContent = '₹' + fmtNum(final);
+      document.getElementById('gst-base').textContent = '₹' + fmtNum(base);
+      document.getElementById('gst-tax').textContent = '₹' + fmtNum(tax);
+      document.getElementById('gst-cgst').textContent = '₹' + fmtNum(tax / 2);
+      document.getElementById('gst-sgst').textContent = '₹' + fmtNum(tax / 2);
+    };
+    calcGST();
+  };
+
+  // 6. Smart Discount
+  ToolSessions.discount = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Payable Price After Discount</div>
+          <div id="disc-pay" class="hero-val">₹1,520</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>You Save</span><strong id="disc-save" style="color:var(--emerald);">₹480</strong></div>
+            <div class="hero-mini"><span>Effective Off</span><strong id="disc-eff">24%</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Original MRP (₹)</label><input id="disc-mrp" class="g-input" type="number" value="2000" oninput="calcDisc()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Discount 1 (%)</label><input id="disc-d1" class="g-input" type="number" value="20" oninput="calcDisc()"></div>
+            <div><label class="g-label">Extra Off (%)</label><input id="disc-d2" class="g-input" type="number" value="5" oninput="calcDisc()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcDisc = () => {
+      const mrp = parseFloat(document.getElementById('disc-mrp').value) || 0;
+      const d1 = parseFloat(document.getElementById('disc-d1').value) || 0;
+      const d2 = parseFloat(document.getElementById('disc-d2').value) || 0;
+      const after1 = mrp * (1 - d1 / 100);
+      const final = after1 * (1 - d2 / 100);
+      const saved = mrp - final;
+      const eff = mrp > 0 ? (saved / mrp) * 100 : 0;
+      document.getElementById('disc-pay').textContent = fmtINR(final);
+      document.getElementById('disc-save').textContent = fmtINR(saved);
+      document.getElementById('disc-eff').textContent = eff.toFixed(1) + '%';
+    };
+    calcDisc();
+  };
+
+  // 7. Profit Margin & Markup
+  ToolSessions.margin = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Net Profit Per Unit</div>
+          <div id="mrg-prof" class="hero-val">₹350</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Gross Margin</span><strong id="mrg-pct" style="color:var(--emerald);">29.17%</strong></div>
+            <div class="hero-mini"><span>Markup %</span><strong id="mrg-mkp" style="color:var(--cyan);">41.18%</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="field-row">
+            <div><label class="g-label">Cost Price (₹)</label><input id="mrg-cp" class="g-input" type="number" value="850" oninput="calcMrg()"></div>
+            <div><label class="g-label">Selling Price (₹)</label><input id="mrg-sp" class="g-input" type="number" value="1200" oninput="calcMrg()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcMrg = () => {
+      const cp = parseFloat(document.getElementById('mrg-cp').value) || 0;
+      const sp = parseFloat(document.getElementById('mrg-sp').value) || 0;
+      const prof = sp - cp;
+      const margin = sp > 0 ? (prof / sp) * 100 : 0;
+      const markup = cp > 0 ? (prof / cp) * 100 : 0;
+      document.getElementById('mrg-prof').textContent = fmtINR(prof);
+      document.getElementById('mrg-pct').textContent = margin.toFixed(2) + '%';
+      document.getElementById('mrg-mkp').textContent = markup.toFixed(2) + '%';
+    };
+    calcMrg();
+  };
+
+  // 8. World Currency Converter
+  ToolSessions.currency = (vp) => {
+    const rates = { INR: 1, USD: 84.4, EUR: 91.2, GBP: 108.5, AED: 22.98, SAR: 22.5, JPY: 0.55, AUD: 55.4, CAD: 60.8, SGD: 63.1 };
+    const opts = Object.keys(rates).map(c => `<option value="${c}">${c}</option>`).join('');
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Converted Value</div>
+          <div id="fx-out" class="hero-val">₹8,440.00</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Amount</label><input id="fx-amt" class="g-input" type="number" value="100" oninput="calcFX()"></div>
+          <div class="field-row">
+            <div><label class="g-label">From</label><select id="fx-from" class="g-select" onchange="calcFX()">${opts}</select></div>
+            <div><label class="g-label">To</label><select id="fx-to" class="g-select" onchange="calcFX()">${opts}</select></div>
+          </div>
+        </div>
+        <div id="fx-all" class="g-card" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
+      </div>`;
+    document.getElementById('fx-from').value = 'USD';
+    document.getElementById('fx-to').value = 'INR';
+    window.calcFX = () => {
+      const amt = parseFloat(document.getElementById('fx-amt').value) || 0;
+      const f = document.getElementById('fx-from').value;
+      const t = document.getElementById('fx-to').value;
+      const inINR = amt * rates[f];
+      const res = inINR / rates[t];
+      document.getElementById('fx-out').textContent = `${fmtNum(res, 2)} ${t}`;
+            document.getElementById('fx-all').innerHTML = Object.keys(rates).map(k => `
+        <div class="hero-mini"><span>${k}</span><strong>${fmtNum(inINR / rates[k], 2)}</strong></div>
+      `).join('');
+    };
+    calcFX();
+  };
+
+  // 9. Bill Split & Tip
+  ToolSessions.tip = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Per Person Split</div>
+          <div id="tip-per" class="hero-val">₹440</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Tip Amount</span><strong id="tip-amt">₹160</strong></div>
+            <div class="hero-mini"><span>Grand Total</span><strong id="tip-tot">₹1,760</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Total Bill (₹)</label><input id="tip-bill" class="g-input" type="number" value="1600" oninput="calcTip()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Tip (%)</label><input id="tip-pct" class="g-input" type="number" value="10" oninput="calcTip()"></div>
+            <div><label class="g-label">People</label><input id="tip-ppl" class="g-input" type="number" value="4" min="1" oninput="calcTip()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcTip = () => {
+      const b = parseFloat(document.getElementById('tip-bill').value) || 0;
+      const p = parseFloat(document.getElementById('tip-pct').value) || 0;
+      const n = Math.max(1, parseInt(document.getElementById('tip-ppl').value) || 1);
+      const tip = b * (p / 100);
+      const tot = b + tip;
+      document.getElementById('tip-per').textContent = fmtINR(tot / n);
+      document.getElementById('tip-amt').textContent = fmtINR(tip);
+      document.getElementById('tip-tot').textContent = fmtINR(tot);
+    };
+    calcTip();
+  };
+
+  // 10. ROI & CAGR
+  ToolSessions.roi = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">CAGR (Annualized Growth)</div>
+          <div id="roi-cagr" class="hero-val">14.87%</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Total ROI</span><strong id="roi-tot" style="color:var(--emerald);">100.0%</strong></div>
+            <div class="hero-mini"><span>Net Profit</span><strong id="roi-net">₹50,000</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="field-row">
+            <div><label class="g-label">Initial Invest (₹)</label><input id="roi-i" class="g-input" type="number" value="50000" oninput="calcROI()"></div>
+            <div><label class="g-label">Final Value (₹)</label><input id="roi-f" class="g-input" type="number" value="100000" oninput="calcROI()"></div>
+          </div>
+          <div><label class="g-label">Time Period (Years)</label><input id="roi-y" class="g-input" type="number" step="0.5" value="5" oninput="calcROI()"></div>
+        </div>
+      </div>`;
+    window.calcROI = () => {
+      const i = parseFloat(document.getElementById('roi-i').value) || 1;
+      const f = parseFloat(document.getElementById('roi-f').value) || 0;
+      const y = Math.max(0.1, parseFloat(document.getElementById('roi-y').value) || 1);
+      const roi = ((f - i) / i) * 100;
+      const cagr = (Math.pow(f / i, 1 / y) - 1) * 100;
+      document.getElementById('roi-cagr').textContent = cagr.toFixed(2) + '%';
+      document.getElementById('roi-tot').textContent = roi.toFixed(1) + '%';
+      document.getElementById('roi-net').textContent = fmtINR(f - i);
+    };
+    calcROI();
+  };
+
+  // 11. Break-Even Point
+  ToolSessions.breakeven = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Break-Even Units Required</div>
+          <div id="bep-u" class="hero-val">250 Units</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Break-Even Revenue</span><strong id="bep-rev">₹1,25,000</strong></div>
+            <div class="hero-mini"><span>Contribution/Unit</span><strong id="bep-con">₹200</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Fixed Monthly Costs (₹)</label><input id="bep-fc" class="g-input" type="number" value="50000" oninput="calcBEP()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Selling Price/Unit (₹)</label><input id="bep-sp" class="g-input" type="number" value="500" oninput="calcBEP()"></div>
+            <div><label class="g-label">Variable Cost/Unit (₹)</label><input id="bep-vc" class="g-input" type="number" value="300" oninput="calcBEP()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcBEP = () => {
+      const fc = parseFloat(document.getElementById('bep-fc').value) || 0;
+      const sp = parseFloat(document.getElementById('bep-sp').value) || 0;
+      const vc = parseFloat(document.getElementById('bep-vc').value) || 0;
+      const con = sp - vc;
+      const units = con > 0 ? Math.ceil(fc / con) : 0;
+      document.getElementById('bep-u').textContent = units.toLocaleString('en-IN') + ' Units';
+      document.getElementById('bep-rev').textContent = fmtINR(units * sp);
+      document.getElementById('bep-con').textContent = fmtINR(con);
+    };
+    calcBEP();
+  };
+
+  // 12. CTC to In-Hand Salary
+  ToolSessions.salary = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Estimated Monthly In-Hand</div>
+          <div id="sal-m" class="hero-val">₹88,500</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Annual PF + PT</span><strong id="sal-pf">₹60,000</strong></div>
+            <div class="hero-mini"><span>Est. Tax (New Regime)</span><strong id="sal-tax">₹78,000</strong></div>
+          </div>
+        </div>
+        <div class="g-card">
+          <label class="g-label">Annual CTC Package (₹)</label>
+          <input id="sal-ctc" class="g-input" type="number" value="1200000" oninput="calcSal()">
+        </div>
+      </div>`;
+    window.calcSal = () => {
+      const ctc = parseFloat(document.getElementById('sal-ctc').value) || 0;
+      const pf = Math.min(ctc * 0.048, 57600) + 2400;
+      const taxable = Math.max(0, ctc - 75000);
+      let tax = 0;
+      if (taxable > 1200000) {
+        if (taxable > 400000) tax += Math.min(400000, taxable - 400000) * 0.05;
+        if (taxable > 800000) tax += Math.min(400000, taxable - 800000) * 0.10;
+        if (taxable > 1200000) tax += Math.min(400000, taxable - 1200000) * 0.15;
+        if (taxable > 1600000) tax += Math.min(400000, taxable - 1600000) * 0.20;
+        if (taxable > 2000000) tax += Math.min(400000, taxable - 2000000) * 0.25;
+        if (taxable > 2400000) tax += (taxable - 2400000) * 0.30;
+        tax *= 1.04;
+      }
+      const inHand = Math.max(0, (ctc - pf - tax) / 12);
+      document.getElementById('sal-m').textContent = fmtINR(inHand);
+      document.getElementById('sal-pf').textContent = fmtINR(pf);
+      document.getElementById('sal-tax').textContent = fmtINR(tax);
+    };
+    calcSal();
+  };
+
+  // 13. Fuel Trip Cost
+  ToolSessions.fuel = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Total Trip Fuel Cost</div>
+          <div id="fl-cost" class="hero-val">₹1,167</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Fuel Needed</span><strong id="fl-lit">11.11 L</strong></div>
+            <div class="hero-mini"><span>Cost Per KM</span><strong id="fl-km">₹5.83/km</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Trip Distance (km)</label><input id="fl-d" class="g-input" type="number" value="200" oninput="calcFuel()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Vehicle Mileage (km/L)</label><input id="fl-m" class="g-input" type="number" value="18" oninput="calcFuel()"></div>
+            <div><label class="g-label">Fuel Price (₹/L)</label><input id="fl-p" class="g-input" type="number" value="105" oninput="calcFuel()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcFuel = () => {
+      const d = parseFloat(document.getElementById('fl-d').value) || 0;
+      const m = Math.max(0.1, parseFloat(document.getElementById('fl-m').value) || 1);
+      const p = parseFloat(document.getElementById('fl-p').value) || 0;
+      const lit = d / m;
+      const cost = lit * p;
+      document.getElementById('fl-cost').textContent = fmtINR(cost);
+      document.getElementById('fl-lit').textContent = lit.toFixed(2) + ' L';
+      document.getElementById('fl-km').textContent = '₹' + (d > 0 ? (cost / d).toFixed(2) : '0') + '/km';
+    };
+    calcFuel();
+  };
+
+  // 14. Inflation Impact
+  ToolSessions.inflation = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Future Equivalent Cost</div>
+          <div id="inf-fut" class="hero-val">₹1,79,085</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Today's Purchasing Power</span><strong id="inf-pow" style="color:var(--rose);">₹55,839</strong></div>
+            <div class="hero-mini"><span>Value Erosion</span><strong id="inf-ero">44.2%</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Current Amount (₹)</label><input id="inf-a" class="g-input" type="number" value="100000" oninput="calcInf()"></div>
+          <div class="field-row">
+            <div><label class="g-label">Inflation Rate (%)</label><input id="inf-r" class="g-input" type="number" step="0.5" value="6" oninput="calcInf()"></div>
+            <div><label class="g-label">Years</label><input id="inf-y" class="g-input" type="number" value="10" oninput="calcInf()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcInf = () => {
+      const a = parseFloat(document.getElementById('inf-a').value) || 0;
+      const r = (parseFloat(document.getElementById('inf-r').value) || 0) / 100;
+      const y = parseFloat(document.getElementById('inf-y').value) || 0;
+      const fut = a * Math.pow(1 + r, y);
+      const pow = a / Math.pow(1 + r, y);
+      document.getElementById('inf-fut').textContent = fmtINR(fut);
+      document.getElementById('inf-pow').textContent = fmtINR(pow);
+      document.getElementById('inf-ero').textContent = (a > 0 ? ((a - pow) / a) * 100 : 0).toFixed(1) + '%';
+    };
+    calcInf();
+  };
+</script>
+<!-- ==================== PART 5: 22 MATH, SCIENCE & ENGINEERING SESSIONS ==================== -->
+<script>
+  // 15. Interactive Function Grapher
+  ToolSessions.grapher = (vp) => {
+    let scale = 30;
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="g-card" style="padding:10px;">
+          <canvas id="graph-canvas" width="400" height="250" style="width:100%;height:230px;border-radius:12px;background:rgba(0,0,0,0.45);display:block;"></canvas>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+            <span id="graph-coord" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--cyan);">Touch curve to trace</span>
+            <div style="display:flex;gap:6px;">
+              <button class="g-btn-glass" style="padding:5px 10px;" onclick="zoomGraph(1.25)">+</button>
+              <button class="g-btn-glass" style="padding:5px 10px;" onclick="zoomGraph(0.8)">−</button>
+            </div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <div><label class="g-label" style="color:#ff9500;">f₁(x) Orange Curve</label><input id="fn1" class="g-input" value="sin(x) * 2" oninput="drawGraph()"></div>
+          <div><label class="g-label" style="color:#38bdf8;">f₂(x) Cyan Curve</label><input id="fn2" class="g-input" value="0.25 * x^2 - 2" oninput="drawGraph()"></div>
+        </div>
+      </div>`;
+    const evalFn = (expr, x) => {
+      if (!expr.trim()) return NaN;
+      const s = expr.replace(/\^/g, '**').replace(/sin/g, 'Math.sin').replace(/cos/g, 'Math.cos').replace(/tan/g, 'Math.tan').replace(/sqrt/g, 'Math.sqrt').replace(/log/g, 'Math.log10').replace(/ln/g, 'Math.log').replace(/abs/g, 'Math.abs').replace(/pi/gi, 'Math.PI');
+      try { return Function('x', 'return (' + s + ')')(x); } catch (e) { return NaN; }
+    };
+    window.zoomGraph = (f) => { scale = Math.max(8, Math.min(120, scale * f)); drawGraph(); };
+    window.drawGraph = () => {
+      const c = document.getElementById('graph-canvas');
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      const w = c.width, h = c.height, cx = w / 2, cy = h / 2;
+      ctx.clearRect(0, 0, w, h);
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      for (let x = cx % scale; x < w; x += scale) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let y = cy % scale; y < h; y += scale) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke();
+
+      const plot = (expr, color) => {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2.4;
+        ctx.beginPath();
+        let started = false;
+        for (let px = 0; px <= w; px += 2) {
+          const x = (px - cx) / scale;
+          const y = evalFn(expr, x);
+          const py = cy - y * scale;
+          if (isFinite(y) && Math.abs(py) < 2000) {
+            if (!started) { ctx.moveTo(px, py); started = true; } else ctx.lineTo(px, py);
+          } else started = false;
+        }
+        ctx.stroke();
+      };
+      plot(document.getElementById('fn1').value, '#ff9500');
+      plot(document.getElementById('fn2').value, '#38bdf8');
+    };
+    const cEl = document.getElementById('graph-canvas');
+    cEl.addEventListener('pointermove', (e) => {
+      const rect = cEl.getBoundingClientRect();
+      const px = ((e.clientX - rect.left) / rect.width) * cEl.width;
+      const x = (px - cEl.width / 2) / scale;
+      const y1 = evalFn(document.getElementById('fn1').value, x);
+      document.getElementById('graph-coord').textContent = `x=${x.toFixed(2)}, f₁(x)=${isFinite(y1) ? y1.toFixed(2) : 'undef'}`;
+    });
+    drawGraph();
+  };
+
+  // 16. Matrix Solver (2x2 & 3x3)
+  ToolSessions.matrix = (vp) => {
+    let dim = 3;
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Determinant |A|</div>
+          <div id="mat-det" class="hero-val">0</div>
+          <div id="mat-out" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--cyan);margin-top:8px;white-space:pre;"></div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="field-row">
+            <button class="g-btn-glass" onclick="setMatDim(2)">2×2 Matrix</button>
+            <button class="g-btn-orange" onclick="setMatDim(3)">3×3 Matrix</button>
+          </div>
+          <div id="mat-grid" style="display:grid;gap:6px;"></div>
+          <div class="field-row">
+            <button class="g-btn-orange" onclick="solveMat('det')">Determinant & Inverse</button>
+            <button class="g-btn-glass" onclick="solveMat('trans')">Transpose Aᵀ</button>
+          </div>
+        </div>
+      </div>`;
+    window.setMatDim = (d) => {
+      dim = d;
+      const g = document.getElementById('mat-grid');
+      g.style.gridTemplateColumns = `repeat(${d}, 1fr)`;
+      const def = d === 2 ? [4, 7, 2, 6] : [2, 1, 3, 0, 4, -1, 5, 2, 1];
+      g.innerHTML = Array.from({ length: d * d }, (_, i) => `<input id="mc-${i}" class="g-input" style="text-align:center;padding:8px;" type="number" value="${def[i] || 0}">`).join('');
+      solveMat('det');
+    };
+    window.solveMat = (mode) => {
+      const m = [];
+      for (let r = 0; r < dim; r++) {
+        m[r] = [];
+        for (let c = 0; c < dim; c++) m[r][c] = parseFloat(document.getElementById(`mc-${r * dim + c}`).value) || 0;
+      }
+      if (mode === 'trans') {
+        const t = m[0].map((_, c) => m.map(r => r[c]).join('  ')).join('\n');
+        document.getElementById('mat-out').textContent = 'Transpose Aᵀ:\n' + t;
+        return;
+      }
+      let det = 0;
+      if (dim === 2) {
+        det = m[0][0] * m[1][1] - m[0][1] * m[1][0];
+        document.getElementById('mat-det').textContent = fmtNum(det, 4);
+        if (det !== 0) {
+          const inv = [[m[1][1] / det, -m[0][1] / det], [-m[1][0] / det, m[0][0] / det]];
+          document.getElementById('mat-out').textContent = 'Inverse A⁻¹:\n' + inv.map(r => r.map(v => v.toFixed(3)).join('  ')).join('\n');
+        } else document.getElementById('mat-out').textContent = 'Singular Matrix (No Inverse)';
+      } else {
+        det = m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+        document.getElementById('mat-det').textContent = fmtNum(det, 4);
+        document.getElementById('mat-out').textContent = det === 0 ? 'Singular Matrix (det = 0)' : 'Non-Singular Invertible Matrix';
+      }
+    };
+    setMatDim(3);
+  };
+
+  // 17. Quadratic Roots
+  ToolSessions.quadratic = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">ax² + bx + c = 0 Roots</div>
+          <div id="qd-roots" class="hero-val" style="font-size:20px;">x₁ = 2, x₂ = 3</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Discriminant (Δ)</span><strong id="qd-disc">1</strong></div>
+            <div class="hero-mini"><span>Vertex (h, k)</span><strong id="qd-vert">(2.5, -0.25)</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div><label class="g-label">a</label><input id="qd-a" class="g-input" type="number" value="1" oninput="calcQuad()"></div>
+          <div><label class="g-label">b</label><input id="qd-b" class="g-input" type="number" value="-5" oninput="calcQuad()"></div>
+          <div><label class="g-label">c</label><input id="qd-c" class="g-input" type="number" value="6" oninput="calcQuad()"></div>
+        </div>
+      </div>`;
+    window.calcQuad = () => {
+      const a = parseFloat(document.getElementById('qd-a').value) || 1;
+      const b = parseFloat(document.getElementById('qd-b').value) || 0;
+      const c = parseFloat(document.getElementById('qd-c').value) || 0;
+      const d = b * b - 4 * a * c;
+      const h = -b / (2 * a), k = a * h * h + b * h + c;
+      document.getElementById('qd-disc').textContent = fmtNum(d, 3);
+      document.getElementById('qd-vert').textContent = `(${h.toFixed(2)}, ${k.toFixed(2)})`;
+      if (d >= 0) {
+        const r1 = (-b + Math.sqrt(d)) / (2 * a), r2 = (-b - Math.sqrt(d)) / (2 * a);
+        document.getElementById('qd-roots').textContent = `x₁ = ${fmtNum(r1, 3)}, x₂ = ${fmtNum(r2, 3)}`;
+      } else {
+        const re = (-b / (2 * a)).toFixed(2), im = (Math.sqrt(-d) / (2 * a)).toFixed(2);
+        document.getElementById('qd-roots').textContent = `${re} ± ${im}i`;
+      }
+    };
+    calcQuad();
+  };
+
+  // 18. 2x2 Linear System
+  ToolSessions.linear2 = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Solution (x, y)</div>
+          <div id="lin-res" class="hero-val">x = 2, y = 1</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div class="g-label">Eq 1: a₁x + b₁y = c₁</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <input id="l-a1" class="g-input" type="number" value="2" oninput="calcLin2()">
+            <input id="l-b1" class="g-input" type="number" value="3" oninput="calcLin2()">
+            <input id="l-c1" class="g-input" type="number" value="7" oninput="calcLin2()">
+          </div>
+          <div class="g-label">Eq 2: a₂x + b₂y = c₂</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <input id="l-a2" class="g-input" type="number" value="4" oninput="calcLin2()">
+            <input id="l-b2" class="g-input" type="number" value="-1" oninput="calcLin2()">
+            <input id="l-c2" class="g-input" type="number" value="7" oninput="calcLin2()">
+          </div>
+        </div>
+      </div>`;
+    window.calcLin2 = () => {
+      const a1 = +document.getElementById('l-a1').value, b1 = +document.getElementById('l-b1').value, c1 = +document.getElementById('l-c1').value;
+      const a2 = +document.getElementById('l-a2').value, b2 = +document.getElementById('l-b2').value, c2 = +document.getElementById('l-c2').value;
+      const D = a1 * b2 - a2 * b1;
+      if (D === 0) { document.getElementById('lin-res').textContent = 'No Unique Solution'; return; }
+      const x = (c1 * b2 - c2 * b1) / D, y = (a1 * c2 - a2 * c1) / D;
+      document.getElementById('lin-res').textContent = `x = ${fmtNum(x, 3)}, y = ${fmtNum(y, 3)}`;
+    };
+    calcLin2();
+  };
+
+  // 19. Derivative & Definite Integral
+  ToolSessions.calculus = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Numerical Calculus Output</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Derivative f′(x₀)</span><strong id="cal-der" style="color:var(--accent);">6.000</strong></div>
+            <div class="hero-mini"><span>Definite Integral ∫ₐᵇ</span><strong id="cal-int" style="color:var(--cyan);">9.000</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <div><label class="g-label">Function f(x)</label><input id="cal-fn" class="g-input" value="x^2" oninput="calcCalculus()"></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+            <div><label class="g-label">Point x₀</label><input id="cal-x0" class="g-input" type="number" value="3" oninput="calcCalculus()"></div>
+            <div><label class="g-label">Lower a</label><input id="cal-a" class="g-input" type="number" value="0" oninput="calcCalculus()"></div>
+            <div><label class="g-label">Upper b</label><input id="cal-b" class="g-input" type="number" value="3" oninput="calcCalculus()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcCalculus = () => {
+      const expr = document.getElementById('cal-fn').value.replace(/\^/g, '**').replace(/sin/g, 'Math.sin').replace(/cos/g, 'Math.cos').replace(/tan/g, 'Math.tan').replace(/sqrt/g, 'Math.sqrt').replace(/log/g, 'Math.log');
+      const f = (x) => { try { return Function('x', 'return (' + expr + ')')(x); } catch (e) { return NaN; } };
+      const x0 = +document.getElementById('cal-x0').value, a = +document.getElementById('cal-a').value, b = +document.getElementById('cal-b').value;
+      const h = 1e-5;
+      const der = (f(x0 + h) - f(x0 - h)) / (2 * h);
+      const n = 200, dx = (b - a) / n;
+      let sum = f(a) + f(b);
+      for (let i = 1; i < n; i++) sum += (i % 2 === 0 ? 2 : 4) * f(a + i * dx);
+      const integral = (dx / 3) * sum;
+      document.getElementById('cal-der').textContent = isFinite(der) ? der.toFixed(4) : 'Error';
+      document.getElementById('cal-int').textContent = isFinite(integral) ? integral.toFixed(4) : 'Error';
+    };
+    calcCalculus();
+  };
+
+  // 20. Statistics & StdDev
+  ToolSessions.stats = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Arithmetic Mean</div>
+          <div id="st-mean" class="hero-val">25.00</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Median</span><strong id="st-med">25</strong></div>
+            <div class="hero-mini"><span>Std Dev (σ)</span><strong id="st-sd">11.18</strong></div>
+            <div class="hero-mini"><span>Sum (Σx)</span><strong id="st-sum">125</strong></div>
+            <div class="hero-mini"><span>Count (N)</span><strong id="st-n">5</strong></div>
+          </div>
+        </div>
+        <div class="g-card">
+          <label class="g-label">Enter Numbers (comma or space separated)</label>
+          <textarea id="st-in" class="g-input" rows="3" oninput="calcStats()">10, 20, 25, 30, 40</textarea>
+        </div>
+      </div>`;
+    window.calcStats = () => {
+      const nums = document.getElementById('st-in').value.split(/[\s,]+/).map(Number).filter(n => !isNaN(n));
+      if (!nums.length) return;
+      const n = nums.length, sum = nums.reduce((a, b) => a + b, 0), mean = sum / n;
+      const sorted = [...nums].sort((a, b) => a - b);
+      const med = n % 2 ? sorted[Math.floor(n / 2)] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+      const sd = Math.sqrt(nums.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n);
+      document.getElementById('st-mean').textContent = fmtNum(mean, 3);
+      document.getElementById('st-med').textContent = fmtNum(med, 3);
+      document.getElementById('st-sd').textContent = fmtNum(sd, 3);
+      document.getElementById('st-sum').textContent = fmtNum(sum, 2);
+      document.getElementById('st-n').textContent = n;
+    };
+    calcStats();
+  };
+
+  // 21. nPr & nCr Combinatorics
+  ToolSessions.pnc = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-grid">
+            <div class="hero-mini"><span>Combination (nCr)</span><strong id="pnc-c" style="color:var(--accent);font-size:18px;">120</strong></div>
+            <div class="hero-mini"><span>Permutation (nPr)</span><strong id="pnc-p" style="color:var(--cyan);font-size:18px;">720</strong></div>
+          </div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Total Items (n)</label><input id="pnc-n" class="g-input" type="number" value="10" oninput="calcPnC()"></div>
+          <div><label class="g-label">Selected (r)</label><input id="pnc-r" class="g-input" type="number" value="3" oninput="calcPnC()"></div>
+        </div>
+      </div>`;
+    const fact = (k) => { let f = 1; for (let i = 2; i <= k; i++) f *= i; return f; };
+    window.calcPnC = () => {
+      const n = Math.min(170, Math.max(0, parseInt(document.getElementById('pnc-n').value) || 0));
+      const r = Math.min(n, Math.max(0, parseInt(document.getElementById('pnc-r').value) || 0));
+      const npr = fact(n) / fact(n - r);
+      const ncr = npr / fact(r);
+      document.getElementById('pnc-c').textContent = Math.round(ncr).toLocaleString('en-IN');
+      document.getElementById('pnc-p').textContent = Math.round(npr).toLocaleString('en-IN');
+    };
+    calcPnC();
+  };
+
+  // 22. GCD, LCM & Prime Factors
+  ToolSessions.gcd = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-grid">
+            <div class="hero-mini"><span>GCD / HCF</span><strong id="g-gcd" style="color:var(--accent);font-size:20px;">12</strong></div>
+            <div class="hero-mini"><span>LCM</span><strong id="g-lcm" style="color:var(--cyan);font-size:20px;">180</strong></div>
+          </div>
+          <div id="g-pf" style="font-size:12px;color:var(--text-dim);margin-top:8px;"></div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Number A</label><input id="g-a" class="g-input" type="number" value="36" oninput="calcGCD()"></div>
+          <div><label class="g-label">Number B</label><input id="g-b" class="g-input" type="number" value="60" oninput="calcGCD()"></div>
+        </div>
+      </div>`;
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    window.calcGCD = () => {
+      const a = Math.abs(parseInt(document.getElementById('g-a').value) || 1);
+      const b = Math.abs(parseInt(document.getElementById('g-b').value) || 1);
+      const g = gcd(a, b);
+      document.getElementById('g-gcd').textContent = g;
+      document.getElementById('g-lcm').textContent = (a * b) / g;
+      let n = a, factors = [];
+      for (let d = 2; d * d <= n; d++) while (n % d === 0) { factors.push(d); n /= d; }
+      if (n > 1) factors.push(n);
+      document.getElementById('g-pf').textContent = `Prime Factors of ${a}: ${factors.join(' × ') || a}`;
+    };
+    calcGCD();
+  };
+
+  // 23. Percentage Suite
+  ToolSessions.percent = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <div class="g-label">What is X% of Y?</div>
+          <div class="field-row">
+            <input id="pct-x" class="g-input" type="number" value="18" oninput="calcPct()">
+            <input id="pct-y" class="g-input" type="number" value="2500" oninput="calcPct()">
+          </div>
+          <div id="pct-r1" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--accent);">= 450</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <div class="g-label">Percentage Change (From → To)</div>
+          <div class="field-row">
+            <input id="pct-f" class="g-input" type="number" value="400" oninput="calcPct()">
+            <input id="pct-t" class="g-input" type="number" value="500" oninput="calcPct()">
+          </div>
+          <div id="pct-r2" style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--emerald);">+25.00%</div>
+        </div>
+      </div>`;
+    window.calcPct = () => {
+      const x = +document.getElementById('pct-x').value, y = +document.getElementById('pct-y').value;
+      document.getElementById('pct-r1').textContent = '= ' + fmtNum((x / 100) * y, 3);
+      const f = +document.getElementById('pct-f').value || 1, t = +document.getElementById('pct-t').value;
+      const chg = ((t - f) / f) * 100;
+      document.getElementById('pct-r2').textContent = (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+    };
+    calcPct();
+  };
+
+  // 24. 2D Geometry Area & 25. 3D Mensuration & 26. Triangle Solver & 27. 3D Vectors & 28. Complex Numbers
+  ToolSessions.geometry2d = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+                    <div class="hero-sub">Area & Perimeter</div>
+          <div id="g2-area" class="hero-val">153.94</div>
+          <div id="g2-peri" style="font-size:12px;color:var(--cyan);">Perimeter / Circumference: 43.98</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <select id="g2-shape" class="g-select" onchange="calcG2()">
+            <option value="circle">Circle (Radius r)</option>
+            <option value="rect">Rectangle (Length × Width)</option>
+            <option value="tri">Equilateral Triangle (Side a)</option>
+          </select>
+          <div class="field-row">
+            <div><label class="g-label">Dim 1 (r / L / a)</label><input id="g2-a" class="g-input" type="number" value="7" oninput="calcG2()"></div>
+            <div><label class="g-label">Dim 2 (Width)</label><input id="g2-b" class="g-input" type="number" value="10" oninput="calcG2()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcG2 = () => {
+      const s = document.getElementById('g2-shape').value, a = +document.getElementById('g2-a').value || 0, b = +document.getElementById('g2-b').value || 0;
+      let area = 0, peri = 0;
+      if (s === 'circle') { area = Math.PI * a * a; peri = 2 * Math.PI * a; }
+      if (s === 'rect') { area = a * b; peri = 2 * (a + b); }
+      if (s === 'tri') { area = (Math.sqrt(3) / 4) * a * a; peri = 3 * a; }
+      document.getElementById('g2-area').textContent = fmtNum(area, 3);
+      document.getElementById('g2-peri').textContent = 'Perimeter / Circumference: ' + fmtNum(peri, 3);
+    };
+    calcG2();
+  };
+
+  // 25. 3D Mensuration
+  ToolSessions.mensuration3d = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">3D Volume</div>
+          <div id="g3-vol" class="hero-val">1,539.38</div>
+          <div id="g3-tsa" style="font-size:12px;color:var(--cyan);">Total Surface Area: 747.70</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+          <select id="g3-shape" class="g-select" onchange="calcG3()">
+            <option value="cyl">Cylinder (r, h)</option>
+            <option value="sph">Sphere (r)</option>
+            <option value="cone">Cone (r, h)</option>
+          </select>
+          <div class="field-row">
+            <div><label class="g-label">Radius (r)</label><input id="g3-r" class="g-input" type="number" value="7" oninput="calcG3()"></div>
+            <div><label class="g-label">Height (h)</label><input id="g3-h" class="g-input" type="number" value="10" oninput="calcG3()"></div>
+          </div>
+        </div>
+      </div>`;
+    window.calcG3 = () => {
+      const s = document.getElementById('g3-shape').value, r = +document.getElementById('g3-r').value || 0, h = +document.getElementById('g3-h').value || 0;
+      let v = 0, tsa = 0;
+      if (s === 'cyl') { v = Math.PI * r * r * h; tsa = 2 * Math.PI * r * (r + h); }
+      if (s === 'sph') { v = (4 / 3) * Math.PI * r * r * r; tsa = 4 * Math.PI * r * r; }
+      if (s === 'cone') { const l = Math.hypot(r, h); v = (1 / 3) * Math.PI * r * r * h; tsa = Math.PI * r * (r + l); }
+      document.getElementById('g3-vol').textContent = fmtNum(v, 3);
+      document.getElementById('g3-tsa').textContent = 'Total Surface Area: ' + fmtNum(tsa, 3);
+    };
+    calcG3();
+  };
+
+  // 26. Triangle Solver
+  ToolSessions.trig = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Right Triangle Hypotenuse & Angles</div>
+          <div id="tr-hyp" class="hero-val">c = 5.00</div>
+          <div id="tr-ang" style="font-size:12px;color:var(--cyan);">∠A = 36.87° | ∠B = 53.13° | Area = 6.00</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Base (a)</label><input id="tr-a" class="g-input" type="number" value="3" oninput="calcTrig()"></div>
+          <div><label class="g-label">Height (b)</label><input id="tr-b" class="g-input" type="number" value="4" oninput="calcTrig()"></div>
+        </div>
+      </div>`;
+    window.calcTrig = () => {
+      const a = +document.getElementById('tr-a').value || 0, b = +document.getElementById('tr-b').value || 0;
+      const c = Math.hypot(a, b);
+      const angA = (Math.atan2(a, b) * 180) / Math.PI;
+      document.getElementById('tr-hyp').textContent = 'c = ' + fmtNum(c, 3);
+      document.getElementById('tr-ang').textContent = `∠A = ${angA.toFixed(2)}° | ∠B = ${(90 - angA).toFixed(2)}° | Area = ${fmtNum(0.5 * a * b, 2)}`;
+    };
+    calcTrig();
+  };
+
+  // 27. 3D Vectors
+  ToolSessions.vector = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Dot Product (A · B)</div>
+          <div id="vec-dot" class="hero-val">32</div>
+          <div id="vec-cross" style="font-size:12px;color:var(--cyan);">Cross A × B = (-3, 6, -3)</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <div class="g-label">Vector A (x, y, z)</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <input id="va1" class="g-input" type="number" value="1" oninput="calcVec()"><input id="va2" class="g-input" type="number" value="2" oninput="calcVec()"><input id="va3" class="g-input" type="number" value="3" oninput="calcVec()">
+          </div>
+          <div class="g-label">Vector B (x, y, z)</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;">
+            <input id="vb1" class="g-input" type="number" value="4" oninput="calcVec()"><input id="vb2" class="g-input" type="number" value="5" oninput="calcVec()"><input id="vb3" class="g-input" type="number" value="6" oninput="calcVec()">
+          </div>
+        </div>
+      </div>`;
+    window.calcVec = () => {
+      const a = [+va1.value, +va2.value, +va3.value], b = [+vb1.value, +vb2.value, +vb3.value];
+      const dot = a[0]*b[0] + a[1]*b[1] + a[2]*b[2];
+      const cx = a[1]*b[2] - a[2]*b[1], cy = a[2]*b[0] - a[0]*b[2], cz = a[0]*b[1] - a[1]*b[0];
+      document.getElementById('vec-dot').textContent = fmtNum(dot, 3);
+      document.getElementById('vec-cross').textContent = `Cross A × B = (${cx}, ${cy}, ${cz})`;
+    };
+    calcVec();
+  };
+
+  // 28. Complex Numbers
+  ToolSessions.complex = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Polar Form (r ∠ θ)</div>
+          <div id="cx-pol" class="hero-val">5.00 ∠ 53.13°</div>
+          <div id="cx-ops" style="font-size:12px;color:var(--cyan);">Modulus |z| = 5 | Conjugate = 3 - 4i</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Real Part (a)</label><input id="cx-a" class="g-input" type="number" value="3" oninput="calcCx()"></div>
+          <div><label class="g-label">Imaginary (b)</label><input id="cx-b" class="g-input" type="number" value="4" oninput="calcCx()"></div>
+        </div>
+      </div>`;
+    window.calcCx = () => {
+      const a = +document.getElementById('cx-a').value || 0, b = +document.getElementById('cx-b').value || 0;
+      const r = Math.hypot(a, b), ang = (Math.atan2(b, a) * 180) / Math.PI;
+      document.getElementById('cx-pol').textContent = `${r.toFixed(2)} ∠ ${ang.toFixed(2)}°`;
+      document.getElementById('cx-ops').textContent = `Modulus |z| = ${r.toFixed(3)} | Conjugate = ${a} ${b >= 0 ? '-' : '+'} ${Math.abs(b)}i`;
+    };
+    calcCx();
+  };
+
+  // 29. Ohm's Law & Power
+  ToolSessions.ohms = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Electrical Power & Current</div>
+          <div id="ohm-p" class="hero-val">24.00 W</div>
+          <div id="ohm-i" style="font-size:12px;color:var(--cyan);">Current (I) = 2.00 A</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Voltage V (Volts)</label><input id="ohm-v" class="g-input" type="number" value="12" oninput="calcOhm()"></div>
+          <div><label class="g-label">Resistance R (Ω)</label><input id="ohm-r" class="g-input" type="number" value="6" oninput="calcOhm()"></div>
+        </div>
+      </div>`;
+    window.calcOhm = () => {
+      const v = +document.getElementById('ohm-v').value || 0, r = Math.max(0.0001, +document.getElementById('ohm-r').value || 1);
+      const i = v / r, p = v * i;
+      document.getElementById('ohm-p').textContent = fmtNum(p, 2) + ' W';
+      document.getElementById('ohm-i').textContent = `Current (I) = ${fmtNum(i, 3)} A`;
+    };
+    calcOhm();
+  };
+
+  // 30. Resistor Color Code
+  ToolSessions.resistor = (vp) => {
+    const colors = ['Black','Brown','Red','Orange','Yellow','Green','Blue','Violet','Grey','White'];
+    const opts = colors.map((c, i) => `<option value="${i}">${c} (${i})</option>`).join('');
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">4-Band Resistor Value</div>
+          <div id="res-val" class="hero-val">4.7 kΩ ±5%</div>
+        </div>
+        <div class="g-card" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div><label class="g-label">Band 1</label><select id="rb1" class="g-select" onchange="calcRes()">${opts}</select></div>
+          <div><label class="g-label">Band 2</label><select id="rb2" class="g-select" onchange="calcRes()">${opts}</select></div>
+          <div><label class="g-label">Multiplier</label><select id="rb3" class="g-select" onchange="calcRes()">${opts}</select></div>
+        </div>
+      </div>`;
+    document.getElementById('rb1').value = 4; document.getElementById('rb2').value = 7; document.getElementById('rb3').value = 2;
+    window.calcRes = () => {
+      const ohms = ((+rb1.value * 10) + +rb2.value) * Math.pow(10, +rb3.value);
+      const disp = ohms >= 1e6 ? (ohms / 1e6) + ' MΩ' : ohms >= 1e3 ? (ohms / 1e3) + ' kΩ' : ohms + ' Ω';
+      document.getElementById('res-val').textContent = disp + ' ±5%';
+    };
+    calcRes();
+  };
+
+  // 31. Projectile Motion
+  ToolSessions.projectile = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Horizontal Range (R)</div>
+          <div id="prj-r" class="hero-val">40.77 m</div>
+          <div id="prj-ht" style="font-size:12px;color:var(--cyan);">Max Height: 10.19 m | Time: 2.88 s</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Velocity u (m/s)</label><input id="prj-u" class="g-input" type="number" value="20" oninput="calcPrj()"></div>
+          <div><label class="g-label">Angle θ (deg)</label><input id="prj-a" class="g-input" type="number" value="45" oninput="calcPrj()"></div>
+        </div>
+      </div>`;
+    window.calcPrj = () => {
+      const u = +document.getElementById('prj-u').value || 0, rad = ((+document.getElementById('prj-a').value || 0) * Math.PI) / 180, g = 9.81;
+      const R = (u * u * Math.sin(2 * rad)) / g, H = (u * u * Math.pow(Math.sin(rad), 2)) / (2 * g), T = (2 * u * Math.sin(rad)) / g;
+      document.getElementById('prj-r').textContent = R.toFixed(2) + ' m';
+      document.getElementById('prj-ht').textContent = `Max Height: ${H.toFixed(2)} m | Time: ${T.toFixed(2)} s`;
+    };
+    calcPrj();
+  };
+
+  // 32. Kinematics
+  ToolSessions.kinematics = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Final Velocity (v) & Distance (s)</div>
+          <div id="kin-v" class="hero-val">v = 30.0 m/s</div>
+          <div id="kin-s" style="font-size:12px;color:var(--cyan);">Displacement s = 100.0 m</div>
+        </div>
+        <div class="g-card" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div><label class="g-label">u (m/s)</label><input id="ku" class="g-input" type="number" value="10" oninput="calcKin()"></div>
+          <div><label class="g-label">a (m/s²)</label><input id="ka" class="g-input" type="number" value="4" oninput="calcKin()"></div>
+          <div><label class="g-label">t (sec)</label><input id="kt" class="g-input" type="number" value="5" oninput="calcKin()"></div>
+        </div>
+      </div>`;
+    window.calcKin = () => {
+      const u = +ku.value, a = +ka.value, t = +kt.value;
+      document.getElementById('kin-v').textContent = `v = ${(u + a * t).toFixed(2)} m/s`;
+      document.getElementById('kin-s').textContent = `Displacement s = ${(u * t + 0.5 * a * t * t).toFixed(2)} m`;
+    };
+    calcKin();
+  };
+
+  // 33. Molarity
+  ToolSessions.molarity = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero"><div class="hero-sub">Solution Molarity (M)</div><div id="mol-out" class="hero-val">0.500 M</div></div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Moles of Solute (n)</label><input id="mol-n" class="g-input" type="number" step="0.1" value="0.25" oninput="calcMol()"></div>
+          <div><label class="g-label">Volume (Liters)</label><input id="mol-v" class="g-input" type="number" step="0.1" value="0.5" oninput="calcMol()"></div>
+        </div>
+      </div>`;
+    window.calcMol = () => {
+      const M = (+document.getElementById('mol-n').value || 0) / (Math.max(0.0001, +document.getElementById('mol-v').value || 1));
+      document.getElementById('mol-out').textContent = M.toFixed(4) + ' M';
+    };
+    calcMol();
+  };
+
+  // 34. pH Scale
+  ToolSessions.ph = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">pH & Acidity Scale</div>
+          <div id="ph-val" class="hero-val">pH 3.00 (Acidic)</div>
+          <div id="ph-poh" style="font-size:12px;color:var(--cyan);">pOH = 11.00</div>
+        </div>
+        <div class="g-card"><label class="g-label">[H⁺] Ion Concentration (mol/L)</label><input id="ph-h" class="g-input" type="number" step="any" value="0.001" oninput="calcPH()"></div>
+      </div>`;
+    window.calcPH = () => {
+      const h = Math.max(1e-14, +document.getElementById('ph-h').value || 1e-7);
+      const ph = -Math.log10(h);
+      const nature = ph < 6.9 ? 'Acidic' : ph > 7.1 ? 'Basic / Alkaline' : 'Neutral';
+      document.getElementById('ph-val').textContent = `pH ${ph.toFixed(2)} (${nature})`;
+      document.getElementById('ph-poh').textContent = `pOH = ${(14 - ph).toFixed(2)}`;
+    };
+    calcPH();
+  };
+
+  // 35. Ideal Gas
+  ToolSessions.idealgas = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero"><div class="hero-sub">Gas Pressure (P = nRT / V)</div><div id="gas-p" class="hero-val">24.63 atm</div></div>
+        <div class="g-card" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <div><label class="g-label">Moles (n)</label><input id="gn" class="g-input" type="number" value="1" oninput="calcGas()"></div>
+          <div><label class="g-label">Temp (K)</label><input id="gt" class="g-input" type="number" value="300" oninput="calcGas()"></div>
+          <div><label class="g-label">Vol (L)</label><input id="gv" class="g-input" type="number" value="1" oninput="calcGas()"></div>
+        </div>
+      </div>`;
+    window.calcGas = () => {
+      const P = (+gn.value * 0.082057 * +gt.value) / Math.max(0.001, +gv.value || 1);
+      document.getElementById('gas-p').textContent = P.toFixed(3) + ' atm';
+    };
+    calcGas();
+  };
+
+  // 36. Civil Concrete & Bags
+  ToolSessions.concrete = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">M20 Concrete Materials (1:1.5:3)</div>
+          <div id="con-bags" class="hero-val">40 Cement Bags</div>
+          <div id="con-agg" style="font-size:12px;color:var(--cyan);">Sand: 2.12 m³ | Aggregate: 4.24 m³</div>
+        </div>
+        <div class="g-card"><label class="g-label">Concrete Volume (Cubic Meters m³)</label><input id="con-v" class="g-input" type="number" value="5" oninput="calcCon()"></div>
+      </div>`;
+    window.calcCon = () => {
+      const dry = (+document.getElementById('con-v').value || 0) * 1.54;
+      const bags = Math.ceil(((1 / 5.5) * dry) / 0.0347);
+      const sand = (1.5 / 5.5) * dry, agg = (3 / 5.5) * dry;
+      document.getElementById('con-bags').textContent = `${bags} Cement Bags`;
+      document.getElementById('con-agg').textContent = `Sand: ${sand.toFixed(2)} m³ | Aggregate: ${agg.toFixed(2)} m³`;
+    };
+    calcCon();
+  };
+</script>
+<!-- ==================== PART 6: 22 CONVERTERS, HEALTH, DATE/TIME & DEV SESSIONS ==================== -->
+<script>
+  // Generic Unit Converter Engine (Tools 37 to 46)
+  const UNIT_TABLES = {
+    conv_length: { base: 'm', units: { mm: 0.001, cm: 0.01, m: 1, km: 1000, inch: 0.0254, ft: 0.3048, yard: 0.9144, mile: 1609.344 } },
+    conv_weight: { base: 'kg', units: { mg: 1e-6, g: 0.001, kg: 1, Quintal: 100, Ton: 1000, lb: 0.45359237, oz: 0.0283495 } },
+    conv_area: { base: 'sqm', units: { 'Sq.ft': 0.092903, 'Sq.m': 1, 'Sq.yard': 0.836127, Guntha: 101.1714, Acre: 4046.856, Hectare: 10000 } },
+    conv_vol: { base: 'L', units: { mL: 0.001, Liter: 1, 'Cu.m (m³)': 1000, 'US Gallon': 3.78541, 'Cu.ft': 28.3168 } },
+    conv_speed: { base: 'mps', units: { 'm/s': 1, 'km/h': 0.277778, mph: 0.44704, Knots: 0.514444, Mach: 343 } },
+    conv_data: { base: 'B', units: { Bit: 0.125, Byte: 1, KB: 1024, MB: 1048576, GB: 1073741824, TB: 1099511627776 } },
+    conv_energy: { base: 'J', units: { Joule: 1, kJ: 1000, Calorie: 4.184, kcal: 4184, Wh: 3600, kWh: 3600000, BTU: 1055.06 } },
+    conv_pressure: { base: 'Pa', units: { Pa: 1, kPa: 1000, Bar: 100000, PSI: 6894.76, atm: 101325, mmHg: 133.322 } },
+    conv_power: { base: 'W', units: { Watt: 1, kW: 1000, MW: 1000000, 'HP (Mech)': 745.7, 'HP (Metric)': 735.5 } }
+  };
+
+  Object.keys(UNIT_TABLES).forEach(key => {
+    ToolSessions[key] = (vp) => {
+      const tbl = UNIT_TABLES[key].units;
+      const uNames = Object.keys(tbl);
+      const opts = uNames.map(u => `<option value="${u}">${u}</option>`).join('');
+      vp.innerHTML = `
+        <div class="tool-session-wrap">
+          <div class="session-hero">
+            <div class="hero-sub">Converted Result</div>
+            <div id="uc-res" class="hero-val">0</div>
+          </div>
+          <div class="g-card" style="display:flex;flex-direction:column;gap:10px;">
+            <div><label class="g-label">Enter Value</label><input id="uc-val" class="g-input" type="number" value="1" oninput="runUnitConv('${key}')"></div>
+            <div class="field-row">
+              <div><label class="g-label">From</label><select id="uc-from" class="g-select" onchange="runUnitConv('${key}')">${opts}</select></div>
+              <div><label class="g-label">To</label><select id="uc-to" class="g-select" onchange="runUnitConv('${key}')">${opts}</select></div>
+            </div>
+          </div>
+          <div id="uc-grid" class="g-card" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;"></div>
+        </div>`;
+      if (uNames.length > 1) document.getElementById('uc-to').value = uNames[1];
+      window.runUnitConv = (k) => {
+        const t = UNIT_TABLES[k].units;
+        const v = parseFloat(document.getElementById('uc-val').value) || 0;
+        const f = document.getElementById('uc-from').value, to = document.getElementById('uc-to').value;
+        const inBase = v * t[f];
+        const out = inBase / t[to];
+        document.getElementById('uc-res').textContent = `${fmtNum(out, 5)} ${to}`;
+        document.getElementById('uc-grid').innerHTML = Object.keys(t).map(u => `
+          <div class="hero-mini"><span>${u}</span><strong>${fmtNum(inBase / t[u], 4)}</strong></div>
+        `).join('');
+      };
+      runUnitConv(key);
+    };
+  });
+
+  // 39. Temperature Converter
+  ToolSessions.conv_temp = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Temperature Scale</div>
+          <div id="tmp-out" class="hero-val">98.60 °F</div>
+          <div id="tmp-k" style="font-size:12px;color:var(--cyan);">Kelvin: 310.15 K</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Value</label><input id="tmp-v" class="g-input" type="number" value="37" oninput="calcTemp()"></div>
+          <div><label class="g-label">Unit</label>
+            <select id="tmp-u" class="g-select" onchange="calcTemp()">
+              <option value="C">Celsius (°C)</option>
+              <option value="F">Fahrenheit (°F)</option>
+              <option value="K">Kelvin (K)</option>
+            </select>
+          </div>
+        </div>
+      </div>`;
+    window.calcTemp = () => {
+      const v = parseFloat(document.getElementById('tmp-v').value) || 0, u = document.getElementById('tmp-u').value;
+      let c = u === 'C' ? v : u === 'F' ? (v - 32) * (5 / 9) : v - 273.15;
+      const f = c * (9 / 5) + 32, k = c + 273.15;
+      document.getElementById('tmp-out').textContent = u === 'C' ? `${f.toFixed(2)} °F` : `${c.toFixed(2)} °C`;
+      document.getElementById('tmp-k').textContent = `Celsius: ${c.toFixed(2)}°C | Fahrenheit: ${f.toFixed(2)}°F | Kelvin: ${k.toFixed(2)} K`;
+    };
+    calcTemp();
+  };
+
+  // 47. BMI & Body Fat
+  ToolSessions.bmi = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Body Mass Index (BMI)</div>
+          <div id="bmi-v" class="hero-val">22.49</div>
+          <div id="bmi-cat" style="font-size:13px;font-weight:700;color:var(--emerald);">Normal Healthy Weight</div>
+          <div id="bmi-ideal" style="font-size:11px;color:var(--text-dim);margin-top:4px;">Ideal Weight: 53.5 – 72.0 kg</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Weight (kg)</label><input id="bmi-w" class="g-input" type="number" value="65" oninput="calcBMI()"></div>
+          <div><label class="g-label">Height (cm)</label><input id="bmi-h" class="g-input" type="number" value="170" oninput="calcBMI()"></div>
+        </div>
+      </div>`;
+    window.calcBMI = () => {
+      const w = +document.getElementById('bmi-w').value || 0, h = (+document.getElementById('bmi-h').value || 1) / 100;
+      const bmi = w / (h * h);
+      const cat = bmi < 18.5 ? ['Underweight', '#38bdf8'] : bmi < 25 ? ['Normal Healthy Weight', '#10b981'] : bmi < 30 ? ['Overweight', '#ff9500'] : ['Obese', '#f43f5e'];
+      document.getElementById('bmi-v').textContent = bmi.toFixed(2);
+      const el = document.getElementById('bmi-cat');
+      el.textContent = cat[0]; el.style.color = cat[1];
+      document.getElementById('bmi-ideal').textContent = `Ideal Range: ${(18.5 * h * h).toFixed(1)} – ${(24.9 * h * h).toFixed(1)} kg`;
+    };
+    calcBMI();
+  };
+
+  // 48. BMR & Daily Calories (TDEE)
+  ToolSessions.bmr = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Daily Maintenance Calories (TDEE)</div>
+          <div id="bmr-tdee" class="hero-val">2,485 kcal</div>
+          <div id="bmr-base" style="font-size:12px;color:var(--cyan);">Resting BMR: 1,603 kcal/day</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <div class="field-row">
+            <div><label class="g-label">Gender</label><select id="bmr-g" class="g-select" onchange="calcBMR()"><option value="5">Male</option><option value="-161">Female</option></select></div>
+            <div><label class="g-label">Age (yrs)</label><input id="bmr-a" class="g-input" type="number" value="20" oninput="calcBMR()"></div>
+          </div>
+          <div class="field-row">
+            <div><label class="g-label">Weight (kg)</label><input id="bmr-w" class="g-input" type="number" value="65" oninput="calcBMR()"></div>
+            <div><label class="g-label">Height (cm)</label><input id="bmr-h" class="g-input" type="number" value="170" oninput="calcBMR()"></div>
+          </div>
+          <div><label class="g-label">Activity Level</label>
+            <select id="bmr-act" class="g-select" onchange="calcBMR()">
+              <option value="1.2">Sedentary (Desk/Study)</option>
+              <option value="1.375">Light Exercise (1-3 days)</option>
+              <option value="1.55" selected>Moderate Gym/Sports (3-5 days)</option>
+              <option value="1.725">Heavy Athlete (6-7 days)</option>
+            </select>
+          </div>
+        </div>
+      </div>`;
+    window.calcBMR = () => {
+      const s = +document.getElementById('bmr-g').value, a = +document.getElementById('bmr-a').value, w = +document.getElementById('bmr-w').value, h = +document.getElementById('bmr-h').value, act = +document.getElementById('bmr-act').value;
+      const bmr = 10 * w + 6.25 * h - 5 * a + s;
+      document.getElementById('bmr-base').textContent = `Resting BMR: ${Math.round(bmr)} kcal/day`;
+      document.getElementById('bmr-tdee').textContent = `${Math.round(bmr * act).toLocaleString('en-IN')} kcal`;
+    };
+    calcBMR();
+  };
+
+  // 49. Daily Water Intake & 50. Running Pace
+  ToolSessions.water = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Recommended Daily Water</div>
+          <div id="wat-out" class="hero-val">2.45 Liters</div>
+          <div id="wat-gls" style="font-size:12px;color:var(--cyan);">≈ 10 Glasses (250 mL each)</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Body Weight (kg)</label><input id="wat-w" class="g-input" type="number" value="65" oninput="calcWat()"></div>
+          <div><label class="g-label">Workout (mins)</label><input id="wat-e" class="g-input" type="number" value="30" oninput="calcWat()"></div>
+        </div>
+      </div>`;
+    window.calcWat = () => {
+      const lit = (+document.getElementById('wat-w').value * 0.033) + ((+document.getElementById('wat-e').value / 30) * 0.35);
+      document.getElementById('wat-out').textContent = lit.toFixed(2) + ' Liters';
+      document.getElementById('wat-gls').textContent = `≈ ${Math.ceil(lit / 0.25)} Glasses (250 mL each)`;
+    };
+    calcWat();
+  };
+
+  ToolSessions.pace = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Average Running Pace</div>
+          <div id="pc-out" class="hero-val">5:00 /km</div>
+          <div id="pc-spd" style="font-size:12px;color:var(--cyan);">Speed: 12.00 km/h</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Distance (km)</label><input id="pc-d" class="g-input" type="number" step="0.1" value="5" oninput="calcPace()"></div>
+          <div><label class="g-label">Time (Minutes)</label><input id="pc-t" class="g-input" type="number" value="25" oninput="calcPace()"></div>
+        </div>
+      </div>`;
+    window.calcPace = () => {
+      const d = Math.max(0.01, +document.getElementById('pc-d').value || 1), t = +document.getElementById('pc-t').value || 0;
+      const pace = t / d, mins = Math.floor(pace), secs = Math.round((pace - mins) * 60);
+      document.getElementById('pc-out').textContent = `${mins}:${secs.toString().padStart(2, '0')} /km`;
+      document.getElementById('pc-spd').textContent = `Speed: ${(t > 0 ? (d / (t / 60)) : 0).toFixed(2)} km/h`;
+    };
+    calcPace();
+  };
+
+  // 51. Exact Age & Birthday
+  ToolSessions.age = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Exact Chronological Age</div>
+          <div id="age-main" class="hero-val" style="font-size:22px;">15 Yrs, 10 Mos, 14 Days</div>
+          <div id="age-days" style="font-size:12px;color:var(--cyan);">Total Days Lived: 5,797</div>
+        </div>
+        <div class="g-card">
+          <label class="g-label">Date of Birth</label>
+          <input id="age-dob" class="g-input" type="date" value="2010-12-29" oninput="calcAge()">
+        </div>
+      </div>`;
+    window.calcAge = () => {
+      const dob = new Date(document.getElementById('age-dob').value);
+      const now = new Date();
+      if (isNaN(dob)) return;
+      let y = now.getFullYear() - dob.getFullYear();
+      let m = now.getMonth() - dob.getMonth();
+      let d = now.getDate() - dob.getDate();
+      if (d < 0) { m--; d += new Date(now.getFullYear(), now.getMonth(), 0).getDate(); }
+      if (m < 0) { y--; m += 12; }
+      const totDays = Math.floor((now - dob) / 86400000);
+      document.getElementById('age-main').textContent = `${y} Yrs, ${m} Mos, ${d} Days`;
+      document.getElementById('age-days').textContent = `Total Days Lived: ${totDays.toLocaleString('en-IN')} days`;
+    };
+    calcAge();
+  };
+
+  // 52. Date Duration Calc
+  ToolSessions.datediff = (vp) => {
+    const today = new Date().toISOString().split('T')[0];
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Total Days Between Dates</div>
+          <div id="dd-days" class="hero-val">30 Days</div>
+          <div id="dd-wks" style="font-size:12px;color:var(--cyan);">4 Weeks & 2 Days</div>
+        </div>
+        <div class="g-card field-row">
+          <div><label class="g-label">Start Date</label><input id="dd-s" class="g-input" type="date" value="${today}" oninput="calcDD()"></div>
+          <div><label class="g-label">End Date</label><input id="dd-e" class="g-input" type="date" value="2026-12-29" oninput="calcDD()"></div>
+        </div>
+      </div>`;
+    window.calcDD = () => {
+      const d1 = new Date(document.getElementById('dd-s').value), d2 = new Date(document.getElementById('dd-e').value);
+      const diff = Math.abs(Math.round((d2 - d1) / 86400000));
+      document.getElementById('dd-days').textContent = `${diff.toLocaleString('en-IN')} Days`;
+      document.getElementById('dd-wks').textContent = `${Math.floor(diff / 7)} Weeks & ${diff % 7} Days`;
+    };
+    calcDD();
+  };
+
+  // 53. Precision Stopwatch
+  ToolSessions.stopwatch = (vp) => {
+    let swTimer = null, elapsed = 0, laps = [];
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Millisecond Chronograph</div>
+          <div id="sw-disp" class="hero-val">00:00.00</div>
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:10px;">
+            <button id="sw-start" class="g-btn-orange" onclick="toggleSW()">Start</button>
+            <button class="g-btn-glass" onclick="lapSW()">Lap</button>
+            <button class="g-btn-glass" style="color:var(--rose);" onclick="resetSW()">Reset</button>
+          </div>
+        </div>
+        <div id="sw-laps" class="g-card" style="display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:12px;"></div>
+      </div>`;
+    const fmtSW = (ms) => {
+      const m = Math.floor(ms / 60000), s = Math.floor((ms % 60000) / 1000), cs = Math.floor((ms % 1000) / 10);
+      return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(cs).padStart(2,'0')}`;
+    };
+    window.toggleSW = () => {
+      const btn = document.getElementById('sw-start');
+      if (swTimer) { clearInterval(swTimer); swTimer = null; btn.textContent = 'Resume'; }
+      else {
+        const start = Date.now() - elapsed;
+        swTimer = setInterval(() => {
+          elapsed = Date.now() - start;
+          const el = document.getElementById('sw-disp');
+          if (el) el.textContent = fmtSW(elapsed); else clearInterval(swTimer);
+        }, 25);
+        btn.textContent = 'Pause';
+      }
+    };
+    window.lapSW = () => {
+      if (!elapsed) return;
+      laps.unshift(`Lap ${laps.length + 1}: ${fmtSW(elapsed)}`);
+      document.getElementById('sw-laps').innerHTML = laps.map(l => `<div>${l}</div>`).join('');
+    };
+    window.resetSW = () => {
+      clearInterval(swTimer); swTimer = null; elapsed = 0; laps = [];
+      document.getElementById('sw-disp').textContent = '00:00.00';
+      document.getElementById('sw-start').textContent = 'Start';
+      document.getElementById('sw-laps').innerHTML = '';
+    };
+  };
+
+  // 54. Programmer HEX/DEC/OCT/BIN
+  ToolSessions.prog = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Multi-Base Programmer Converter</div>
+          <div class="hero-grid">
+            <div class="hero-mini"><span>HEX (16)</span><strong id="pr-hex" style="color:var(--accent);">FF</strong></div>
+            <div class="hero-mini"><span>DEC (10)</span><strong id="pr-dec">255</strong></div>
+            <div class="hero-mini"><span>OCT (8)</span><strong id="pr-oct">377</strong></div>
+            <div class="hero-mini"><span>BIN (2)</span><strong id="pr-bin" style="color:var(--cyan);">11111111</strong></div>
+          </div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <label class="g-label">Enter Decimal Integer</label>
+          <input id="pr-in" class="g-input" type="number" value="255" oninput="calcProg()">
+          <div class="slab-row">
+            <button class="slab-btn" onclick="bitShift('L')"><< 1</button>
+            <button class="slab-btn" onclick="bitShift('R')">>> 1</button>
+            <button class="slab-btn" onclick="bitShift('NOT')">~NOT (8-bit)</button>
+          </div>
+        </div>
+      </div>`;
+    window.calcProg = () => {
+      const n = Math.max(0, Math.floor(+document.getElementById('pr-in').value || 0));
+      document.getElementById('pr-hex').textContent = n.toString(16).toUpperCase();
+      document.getElementById('pr-dec').textContent = n.toString(10);
+      document.getElementById('pr-oct').textContent = n.toString(8);
+      document.getElementById('pr-bin').textContent = n.toString(2);
+    };
+    window.bitShift = (op) => {
+      let n = Math.floor(+document.getElementById('pr-in').value || 0);
+      if (op === 'L') n = n << 1;
+      if (op === 'R') n = n >> 1;
+      if (op === 'NOT') n = (~n) & 0xFF;
+      document.getElementById('pr-in').value = n;
+      calcProg();
+    };
+    calcProg();
+  };
+
+  // 55. Base64 & URL Encoder + 56. Color Picker + 57. Reels Aspect Ratio + 58. Password Gen
+  ToolSessions.base64 = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <label class="g-label">Input Text</label>
+          <textarea id="b64-in" class="g-input" rows="3">Calculator Pro Ultra</textarea>
+          <div class="field-row">
+            <button class="g-btn-orange" onclick="b64Out.value=btoa(unescape(encodeURIComponent(b64In.value)))">Encode Base64</button>
+            <button class="g-btn-glass" onclick="try{b64Out.value=decodeURIComponent(escape(atob(b64In.value)))}catch(e){b64Out.value='Invalid Base64'}">Decode Base64</button>
+          </div>
+          <label class="g-label">Output</label>
+          <textarea id="b64-out" class="g-input" rows="3" readonly></textarea>
+        </div>
+      </div>`;
+    window.b64In = document.getElementById('b64-in');
+    window.b64Out = document.getElementById('b64-out');
+  };
+
+  ToolSessions.color = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero" id="col-preview" style="background:#ff9500;">
+          <div class="hero-sub" style="color:#000;font-weight:800;">Live Color Swatch</div>
+          <div id="col-txt" class="hero-val" style="color:#000;font-size:20px;">#FF9500 | rgb(255, 149, 0)</div>
+        </div>
+        <div class="g-card">
+          <label class="g-label">Pick Any Color</label>
+          <input id="col-pick" type="color" value="#ff9500" style="width:100%;height:48px;border:none;border-radius:12px;cursor:pointer;" oninput="calcCol(this.value)">
+        </div>
+      </div>`;
+    window.calcCol = (hex) => {
+      const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+      document.getElementById('col-preview').style.background = hex;
+      document.getElementById('col-txt').textContent = `${hex.toUpperCase()} | rgb(${r}, ${g}, ${b})`;
+    };
+  };
+
+  ToolSessions.aspect = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Calculated Reels / Video Resolution</div>
+            <div id="asp-out" class="hero-val">1080 × 1920 px</div>
+        </div>
+        <div class="g-card" style="display:flex;flex-direction:column;gap:8px;">
+          <select id="asp-ratio" class="g-select" onchange="calcAsp()">
+            <option value="9:16">9:16 (Instagram Reels / Shorts)</option>
+            <option value="16:9">16:9 (YouTube Landscape)</option>
+            <option value="4:5">4:5 (Instagram Portrait Post)</option>
+            <option value="1:1">1:1 (Square)</option>
+          </select>
+          <div><label class="g-label">Target Width (px)</label><input id="asp-w" class="g-input" type="number" value="1080" oninput="calcAsp()"></div>
+        </div>
+      </div>`;
+    window.calcAsp = () => {
+      const [rw, rh] = document.getElementById('asp-ratio').value.split(':').map(Number);
+      const w = +document.getElementById('asp-w').value || 1080;
+      document.getElementById('asp-out').textContent = `${w} × ${Math.round((w * rh) / rw)} px`;
+    };
+    calcAsp();
+  };
+
+  ToolSessions.passgen = (vp) => {
+    vp.innerHTML = `
+      <div class="tool-session-wrap">
+        <div class="session-hero">
+          <div class="hero-sub">Generated Secure Password</div>
+          <div id="pw-out" class="hero-val" style="font-size:18px;user-select:text;">Rk#94Ultra@2026!</div>
+          <button class="g-btn-orange" style="margin-top:8px;" onclick="genPW()">Generate New Password</button>
+        </div>
+      </div>`;
+    window.genPW = () => {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%^&*';
+      let pw = '';
+      for (let i = 0; i < 16; i++) pw += chars[Math.floor(Math.random() * chars.length)];
+      document.getElementById('pw-out').textContent = pw;
+    };
+    genPW();
+  };
+</script>
+</body>
+</html>
