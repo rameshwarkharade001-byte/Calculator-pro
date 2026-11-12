@@ -1,4 +1,4 @@
-name: Build Offline Native APK
+name: Build Native APK
 
 on:
   workflow_dispatch:
@@ -9,7 +9,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Node.js
@@ -17,47 +17,31 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Setup Java 21
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
+          java-version: '17'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Build Offline Capacitor Android Project
+      - name: Install Cordova & Build APK
         run: |
-          npm init -y
-          npm install @capacitor/core@6 @capacitor/cli@6 @capacitor/android@6
-          mkdir -p www
-          cp index.html www/index.html
-          cat << 'EOF' > capacitor.config.json
-          {
-            "appId": "com.rameshwar.calculatorpro",
-            "appName": "Calculator Pro",
-            "webDir": "www",
-            "bundledWebRuntime": false,
-            "android": {
-              "allowMixedContent": true
-            }
-          }
-          EOF
-          npx cap add android
-          cd android
-          chmod +x gradlew
-          ./gradlew assembleRelease
+          npm install -g cordova
+          cordova create app com.rameshwar.calculatorpro "Calculator Pro"
+          cp index.html app/www/index.html
+          cd app
+          cordova platform add android
+          cordova build android --release
 
       - name: Sign Release APK
         run: |
           keytool -genkey -v -keystore release.keystore -alias calcpro -keyalg RSA -keysize 2048 -validity 10000 -storepass calc1234 -keypass calc1234 -dname "CN=Rameshwar, OU=Dev, O=CalculatorPro, L=Partur, ST=Maharashtra, C=IN"
           BUILD_TOOLS=$(ls $ANDROID_HOME/build-tools | sort -V | tail -n 1)
-          $BUILD_TOOLS/zipalign -v -p 4 android/app/build/outputs/apk/release/app-release-unsigned.apk app-aligned.apk
-          $BUILD_TOOLS/apksigner sign --ks release.keystore --ks-pass pass:calc1234 --key-pass pass:calc1234 --out Calculator-Pro-Offline-Signed.apk app-aligned.apk
+          $BUILD_TOOLS/zipalign -v -p 4 app/platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk app-aligned.apk
+          $BUILD_TOOLS/apksigner sign --ks release.keystore --ks-pass pass:calc1234 --key-pass pass:calc1234 --out Calculator-Pro-Signed.apk app-aligned.apk
 
       - name: Upload Signed APK
         uses: actions/upload-artifact@v4
         with:
-          name: Calculator-Pro-Native-APK
-          path: Calculator-Pro-Offline-Signed.apk
+          name: Calculator-Pro-Signed-APK
+          path: Calculator-Pro-Signed.apk
           
